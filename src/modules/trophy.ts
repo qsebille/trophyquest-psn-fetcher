@@ -22,19 +22,35 @@ export type TrophyEarnedPsn = {
     trophyEarnedRate: string;
 }
 
+
+async function fetchPsnGameTrophies(auth: Auth, gameId: string, platform: string) {
+    //@ts-ignore
+    const {getTitleTrophies} = await import("psn-api");
+    switch (platform) {
+        case "PS5":
+            return getTitleTrophies(auth, gameId, "all");
+        default:
+            return await getTitleTrophies(auth, gameId, "all", {npServiceName: "trophy"});
+    }
+}
+
 export async function listGameTrophies(
     auth: Auth,
     game: GameTQ
 ): Promise<TrophyPsn[]> {
+    const result = await fetchPsnGameTrophies(auth, game.psnId, game.platform);
+    return result.trophies;
+}
+
+
+async function fetchPsnEarnedGameTrophies(auth: Auth, gameId: string, accountId: string, platform: string) {
     //@ts-ignore
-    const {getTitleTrophies} = await import("psn-api");
-    const platforms: string[] = game.platform.split(",");
-    if (platforms.filter(p => p === 'PS5').length === 1) {
-        const result = await getTitleTrophies(auth, game.psnId, "all");
-        return result.trophies;
-    } else {
-        const result = await getTitleTrophies(auth, game.psnId, "all", {npServiceName: "trophy"});
-        return result.trophies;
+    const {getUserTrophiesEarnedForTitle} = await import("psn-api");
+    switch (platform) {
+        case "PS5":
+            return await getUserTrophiesEarnedForTitle(auth, accountId, gameId, "all");
+        default:
+            return await getUserTrophiesEarnedForTitle(auth, accountId, gameId, "all", {npServiceName: "trophy"});
     }
 }
 
@@ -43,20 +59,10 @@ export async function listEarnedGameTrophies(
     game: GameTQ,
     accountId: string = "me",
 ): Promise<Map<number, TrophyEarnedPsn>> {
-    //@ts-ignore
-    const {getUserTrophiesEarnedForTitle} = await import("psn-api");
-    const platforms: string[] = game.platform.split(",");
-    if (platforms.filter(p => p === 'PS5').length === 1) {
-        const result = await getUserTrophiesEarnedForTitle(auth, accountId, game.psnId, "all");
-        const map = new Map<number, any>();
-        for (const e of result.trophies) map.set(e.trophyId, e);
-        return map;
-    } else {
-        const result = await getUserTrophiesEarnedForTitle(auth, accountId, game.psnId, "all", {npServiceName: "trophy"});
-        const map = new Map<number, any>();
-        for (const e of result.trophies) map.set(e.trophyId, e);
-        return map;
-    }
+    const psnEarnedTrophies = await fetchPsnEarnedGameTrophies(auth, game.psnId, accountId, game.platform);
+    const map = new Map<number, any>();
+    for (const e of psnEarnedTrophies.trophies) map.set(e.trophyId, e);
+    return map;
 }
 
 export type TrophyTQ = {

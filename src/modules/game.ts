@@ -51,13 +51,26 @@ export type GameTQ = {
     lastUpdatedDateTime: string;
 }
 
+function normalizePlatform(psnPlatform: string): string {
+    const allPlatforms: string[] = psnPlatform.split(",");
+    if (allPlatforms.filter(p => p === "PS5").length === 1) {
+        return "PS5";
+    } else if (allPlatforms.filter(p => p === "PS4").length === 1) {
+        return "PS4";
+    } else if (allPlatforms.filter(p => p === "PS3").length === 1) {
+        return "PS3"
+    } else {
+        return psnPlatform;
+    }
+}
+
 export function toTrophyQuestGame(gamePsn: GamePsn): GameTQ {
     return {
         id: gameUuid(gamePsn.trophyTitleName, gamePsn.trophyTitlePlatform),
         psnId: gamePsn.npCommunicationId,
         title: gamePsn.trophyTitleName,
         iconUrl: gamePsn.trophyTitleIconUrl,
-        platform: gamePsn.trophyTitlePlatform,
+        platform: normalizePlatform(gamePsn.trophyTitlePlatform),
         lastUpdatedDateTime: gamePsn.lastUpdatedDateTime
     }
 }
