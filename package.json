@@ -1,0 +1,28 @@
+{
+  "name": "psn-fetcher",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/psn-api-main.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.16.3",
+    "playwright": "^1.56.1",
+    "psn-api": "^2.15.0",
+    "uuid": "^13.0.0"
+  },
+  "description": "Micro‑service minimal pour **récupérer jeux & trophées PSN** avec [`psn-api`](https://www.npmjs.com/package/psn-api), et **stocker en PostgreSQL** (local). Pensé pour alimenter ensuite le backend Spring/Angular ou un ETL vers Snowflake.",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@types/pg": "^8.15.6",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
