@@ -12,25 +12,25 @@ export async function insertTrophiesIntoPostgres(trophies: TrophyDTO[], params: 
     for (let i = 0; i < trophies.length; i += TROPHY_BATCH_SIZE) {
         const batch = trophies.slice(i, i + TROPHY_BATCH_SIZE);
         const values: string[] = [];
-        const placeholders: string = batch.map((trophy, idx) => {
+        const placeholders: string = batch.map((t, idx) => {
             const currentValues: string[] = [
-                trophy.id,
-                trophy.rank.toString(),
-                trophy.name,
-                trophy.description,
-                trophy.trophySetId,
-                trophy.isHidden.toString(),
-                trophy.trophyType,
-                trophy.iconUrl,
-                trophy.groupId,
+                t.id,
+                t.trophySetId,
+                t.rank.toString(),
+                t.title,
+                t.detail,
+                t.isHidden.toString(),
+                t.trophyType,
+                t.iconUrl,
+                t.groupId,
             ];
             values.push(...currentValues);
             return buildInsertPlaceholders(currentValues, idx);
         }).join(',');
 
         const insert = await pool.query(`
-            INSERT INTO public.psn_trophy (id, rank, name, description, trophy_set_id, is_hidden, trophy_type, icon_url,
-                                          game_group_id)
+            INSERT INTO psn.trophy (id, trophy_set_id, rank, title, detail, is_hidden, trophy_type, icon_url,
+                                           game_group_id)
             VALUES ${placeholders} ON CONFLICT (id) DO NOTHING
         `, values);
 
@@ -60,7 +60,7 @@ export async function insertEarnedTrophiesIntoPostgres(earnedTrophies: EarnedTro
         }).join(',');
 
         const insert = await pool.query(`
-            INSERT INTO public.psn_earned_trophy (trophy_id, user_id, earned_timestamp)
+            INSERT INTO psn.user_earned_trophy (trophy_id, user_id, earned_at)
             VALUES ${placeholders} ON CONFLICT (trophy_id,user_id) DO NOTHING
         `, values);
 

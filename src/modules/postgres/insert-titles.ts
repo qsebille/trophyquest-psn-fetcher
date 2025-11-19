@@ -7,14 +7,14 @@ import {AuthData} from "../auth.js";
 export async function insertTitlesIntoPostgres(titles: TitleDTO[], params: Params): Promise<any> {
     const pool = postgresUtils(params);
     const values: string[] = [];
-    const placeholders: string = titles.map((title, idx) => {
-        const currentValues = [title.id, title.psnId, title.name, title.category, title.imageUrl];
+    const placeholders: string = titles.map((t, idx) => {
+        const currentValues = [t.id, t.name, t.category, t.imageUrl];
         values.push(...currentValues);
         return buildInsertPlaceholders(currentValues, idx);
     }).join(',');
 
     const insert =  await pool.query(`
-        INSERT INTO public.psn_title (id, psn_id, name, category, image_url)
+        INSERT INTO psn.title (id, name, category, image_url)
         VALUES ${placeholders} ON CONFLICT (id) DO NOTHING
     `, values);
 
@@ -33,7 +33,7 @@ export async function insertUserTitlesIntoPostgres(authData: AuthData, titles: T
     }).join(',');
 
     const insert =  await pool.query(`
-        INSERT INTO public.psn_user_title (user_id, title_id, last_played_at)
+        INSERT INTO psn.user_played_title (user_id, title_id, last_played_at)
         VALUES ${placeholders} ON CONFLICT (user_id,title_id) DO
         UPDATE SET last_played_at=EXCLUDED.last_played_at
     `, values);

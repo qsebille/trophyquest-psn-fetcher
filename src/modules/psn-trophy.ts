@@ -1,13 +1,12 @@
 import {AuthData} from "./auth.js";
-import {trophySetUuid, trophyUuid} from "./utils/uuid.js";
 import {TrophySetDTO} from "./psn-titles-trophy-sets.js";
 
 export type TrophyDTO = {
     id: string;
-    rank: number;
-    name: string;
-    description: string;
     trophySetId: string;
+    rank: number;
+    title: string;
+    detail: string;
     isHidden: boolean;
     trophyType: string;
     iconUrl: string;
@@ -30,16 +29,16 @@ export async function getTrophiesData(auth: AuthData, trophySets: TrophySetDTO[]
     let earnedTrophies: EarnedTrophyDTO[] = [];
 
     for (const trophySet of trophySets) {
-        console.info(`--- Processing trophies of ${trophySet.name} (${trophySet.psnId})`)
-        const gameTrophyResponse = await fetchPsnGameTrophies(auth, trophySet.psnId, trophySet.platform);
+        console.info(`--- Processing trophies of ${trophySet.name} (${trophySet.id})`)
+        const gameTrophyResponse = await fetchPsnGameTrophies(auth, trophySet.id, trophySet.platform);
         //@ts-ignore
         const currentTrophies: TrophyDTO[] = gameTrophyResponse.trophies.map(trophy => {
             return {
-                id: trophyUuid(trophySet.psnId, trophy.trophyId),
+                id: `${trophySet.id}-${trophy.trophyId}`,
                 rank: trophy.trophyId,
-                name: trophy.trophyName,
-                description: trophy.trophyDetail,
-                trophySetId: trophySetUuid(trophySet.psnId),
+                title: trophy.trophyName,
+                detail: trophy.trophyDetail,
+                trophySetId: trophySet.id,
                 isHidden: trophy.trophyHidden,
                 trophyType: trophy.trophyType,
                 iconUrl: trophy.trophyIconUrl,
@@ -47,14 +46,14 @@ export async function getTrophiesData(auth: AuthData, trophySets: TrophySetDTO[]
             }
         });
 
-        const earnedTrophyResponse = await fetchPsnEarnedGameTrophies(auth, trophySet.psnId, trophySet.platform);
+        const earnedTrophyResponse = await fetchPsnEarnedGameTrophies(auth, trophySet.id, trophySet.platform);
         const currentEarnedTrophies: EarnedTrophyDTO[] = earnedTrophyResponse.trophies
             // @ts-ignore
             .filter(trophy => trophy.earnedDateTime !== undefined)
             // @ts-ignore
             .map(trophy => {
                 return {
-                    trophyId: trophyUuid(trophySet.psnId, trophy.trophyId),
+                    trophyId: `${trophySet.id}-${trophy.trophyId}`,
                     userId: auth.userInfo.id,
                     earnedDateTime: trophy.earnedDateTime,
                 }

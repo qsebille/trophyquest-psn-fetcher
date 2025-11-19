@@ -1,4 +1,4 @@
-import {getUserInfo, UserTQ} from "./psn-user.js";
+import {getUserInfo, UserDTO} from "./psn-user.js";
 import {Params} from "./utils/params.js";
 
 export type AuthTokens = {
@@ -8,7 +8,7 @@ export type AuthTokens = {
 
 export type AuthData = {
     tokens: AuthTokens;
-    userInfo: UserTQ;
+    userInfo: UserDTO;
     accountId: string;
 }
 
@@ -20,14 +20,14 @@ export async function auth(params: Params): Promise<AuthData> {
     }
 
     let accountId: string;
-    let userInfo: UserTQ;
+    let userInfo: UserDTO;
     if (!params.profileName) {
         console.info("No PROFILE_NAME provided, use 'me' as account");
         accountId = "me"
         userInfo = await getUserInfo(authTokensResponse, accountId);
     } else {
         userInfo = await getUserInfo(authTokensResponse, params.profileName);
-        accountId = userInfo.psnId;
+        accountId = userInfo.id;
         console.info(`Found user ${params.profileName} in PSN (id: ${accountId})`);
     }
 

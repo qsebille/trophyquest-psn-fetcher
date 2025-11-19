@@ -1,9 +1,7 @@
 import {AuthData} from "./auth.js";
-import {titleUuid, trophySetUuid} from "./utils/uuid.js";
 
 export type TitleDTO = {
     id: string;
-    psnId: string;
     name: string;
     imageUrl: string;
     category: string;
@@ -12,12 +10,11 @@ export type TitleDTO = {
 
 export type TrophySetDTO = {
     id: string;
-    psnId: string;
-    serviceName: string;
     name: string;
     iconUrl: string;
-    version: string;
     platform: string;
+    version: string;
+    serviceName: string;
 }
 
 export type TitleTrophySetDTO = {
@@ -46,8 +43,7 @@ async function fetchPsnTitles(authData: AuthData): Promise<TitleDTO[]> {
             // @ts-ignore
             .map(title => {
                 return {
-                    id: titleUuid(title.titleId),
-                    psnId: title.titleId,
+                    id: title.titleId,
                     name: title.name,
                     imageUrl: title.imageUrl,
                     category: title.category,
@@ -87,7 +83,7 @@ async function fetchUserTitles(authData: AuthData): Promise<TrophySetDTO[]> {
         // @ts-ignore
         const pageUserTitles = userTitlesResponse.trophyTitles.map(trophyTitle => {
             return {
-                id: trophySetUuid(trophyTitle.npCommunicationId),
+                id: trophyTitle.npCommunicationId,
                 psnId: trophyTitle.npCommunicationId,
                 serviceName: trophyTitle.npServiceName,
                 name: trophyTitle.trophyTitleName,
@@ -113,20 +109,20 @@ export async function getTitlesData(authData: AuthData): Promise<PsnTitlesTrophy
 
     const psnTitles: TitleDTO[] = await fetchPsnTitles(authData);
     const trophySets: TrophySetDTO[] = await fetchUserTitles(authData);
-    const trophySetIds: string[] = trophySets.map(t => t.psnId);
+    const trophySetIds: string[] = trophySets.map(t => t.id);
 
     let joinList: TitleTrophySetDTO[] = [];
     const NP_TITLE_CHUNK_SIZE = 5;
     for (const chunk of chunkBy(psnTitles, NP_TITLE_CHUNK_SIZE)) {
-        const options = {npTitleIds: chunk.map(t => t.psnId).join(",")}
+        const options = {npTitleIds: chunk.map(t => t.id).join(",")}
         const trophySetResponse = await getUserTrophiesForSpecificTitle(authData.tokens, authData.accountId, options);
 
         for (const title of trophySetResponse.titles) {
             for (const trophyTitle of title.trophyTitles) {
                 if (trophySetIds.includes(trophyTitle.npCommunicationId)) {
                     joinList.push({
-                        titleId: titleUuid(title.npTitleId),
-                        trophySetId: trophySetUuid(trophyTitle.npCommunicationId),
+                        titleId: title.npTitleId,
+                        trophySetId: trophyTitle.npCommunicationId,
                     });
                 }
             }

@@ -5,14 +5,14 @@ import {buildInsertPlaceholders, postgresUtils} from "./postgres-utils.js";
 export async function insertTrophySetsIntoPostgres(trophySetList: TrophySetDTO[], params: Params): Promise<any> {
     const pool = postgresUtils(params);
     const values: string[] = [];
-    const placeholders: string = trophySetList.map((trophySet, idx) => {
-        const currentValues = [trophySet.id, trophySet.psnId, trophySet.name, trophySet.version, trophySet.platform, trophySet.iconUrl];
+    const placeholders: string = trophySetList.map((ts, idx) => {
+        const currentValues = [ts.id, ts.name, ts.platform, ts.version, ts.serviceName, ts.iconUrl];
         values.push(...currentValues);
         return buildInsertPlaceholders(currentValues, idx);
     }).join(',');
 
     const insert = await pool.query(`
-        INSERT INTO public.psn_trophy_set (id, psn_id, name, version, platform, icon_url)
+        INSERT INTO psn.trophy_set (id, name, platform, version, service_name, icon_url)
         VALUES ${placeholders} ON CONFLICT (id) DO NOTHING
     `, values);
 
@@ -32,7 +32,7 @@ export async function insertTitlesTrophySetIntoPostgres(joinList: TitleTrophySet
     }).join(',');
 
     const insert = await pool.query(`
-        INSERT INTO public.psn_title_trophy_set (title_id, trophy_set_id)
+        INSERT INTO psn.title_trophy_set (title_id, trophy_set_id)
         VALUES ${placeholders} ON CONFLICT (title_id,trophy_set_id) DO NOTHING
     `, values);
 
