@@ -24,8 +24,7 @@ async function main() {
     try {
         // Authenticate and add profile in database
         const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(params.npsso);
-        const psnUser: PsnUserDto = await fetchPsnUser(psnAuthTokens,
-            params.npsso);
+        const psnUser: PsnUserDto = await fetchPsnUser(psnAuthTokens, params.profileName);
         const accountId: string = psnUser.id;
         await insertUserIntoPostgres(pool, psnUser);
 
