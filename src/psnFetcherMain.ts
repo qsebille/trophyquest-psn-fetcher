@@ -22,6 +22,7 @@ import {insertEarnedTrophiesIntoPostgres} from "./postgres/insertEarnedTrophiesI
 
 
 async function main() {
+    const startTime = Date.now();
     console.info("START PSN Fetcher v2")
 
     const params: Params = getParams();
@@ -57,6 +58,8 @@ async function main() {
 
         console.info("SUCCESS");
     } finally {
+        const durationSeconds = (Date.now() - startTime) / 1000;
+        console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);
         await pool.end();
     }
 }
