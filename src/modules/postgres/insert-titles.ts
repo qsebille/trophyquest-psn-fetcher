@@ -6,6 +6,11 @@ import {buildPsnFetcherPool} from "./pool.js";
 
 
 export async function insertTitlesIntoPostgres(titles: TitleDTO[], params: Params): Promise<any> {
+    if (titles.length === 0) {
+        console.info("No titles to insert into postgres database.");
+        return;
+    }
+
     const pool = buildPsnFetcherPool(params);
     const values: string[] = [];
     const placeholders: string = titles.map((t, idx) => {
@@ -27,6 +32,11 @@ export async function insertTitlesIntoPostgres(titles: TitleDTO[], params: Param
 }
 
 export async function insertUserTitlesIntoPostgres(authData: AuthData, titles: TitleDTO[], params: Params): Promise<any> {
+    if (titles.length === 0) {
+        console.info("No user titles to insert into postgres database.");
+        return;
+    }
+
     const pool = buildPsnFetcherPool(params);
     const values: string[] = [];
     const placeholders: string = titles.map((title, idx) => {

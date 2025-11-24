@@ -4,6 +4,11 @@ import {buildPsnFetcherPool} from "./pool.js";
 import {buildInsertPlaceholders} from "./postgres-utils.js";
 
 export async function insertTrophySetsIntoPostgres(trophySetList: TrophySetDTO[], params: Params): Promise<any> {
+    if (trophySetList.length === 0) {
+        console.info("No trophy-sets to insert into postgres database.");
+        return;
+    }
+
     const pool = buildPsnFetcherPool(params);
     const values: string[] = [];
     const placeholders: string = trophySetList.map((ts, idx) => {
@@ -26,6 +31,11 @@ export async function insertTrophySetsIntoPostgres(trophySetList: TrophySetDTO[]
 
 
 export async function insertTitlesTrophySetIntoPostgres(joinList: TitleTrophySetDTO[], params: Params): Promise<any> {
+    if (joinList.length === 0) {
+        console.info("No title-trophy-set links to insert into postgres database.");
+        return;
+    }
+
     const pool = buildPsnFetcherPool(params);
     const values: string[] = [];
     const placeholders: string = joinList.map((link, idx) => {
