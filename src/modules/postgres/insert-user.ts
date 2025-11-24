@@ -1,12 +1,11 @@
 import {Pool} from "pg";
-import {UserDTO} from "../psn-user.js";
+import {PsnUserDto} from "../../psn/models/psnUserDto.js";
 
-export async function insertUserIntoPostgres(pool: Pool, user: UserDTO): Promise<any> {
+export async function insertUserIntoPostgres(pool: Pool, user: PsnUserDto): Promise<any> {
     const insert = await pool.query(
         `
             INSERT INTO psn.user_profile (id, name, avatar_url)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (id) DO NOTHING
+            VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING
         `,
         [user.id, user.profileName, user.avatarUrl]
     );

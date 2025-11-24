@@ -1,4 +1,4 @@
-import {AuthData} from "./auth.js";
+import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
 
 export type TitleDTO = {
     id: string;
@@ -28,7 +28,7 @@ export type PsnTitlesTrophySetResponseDTO = {
     links: TitleTrophySetDTO[];
 }
 
-async function fetchPsnTitles(authData: AuthData): Promise<TitleDTO[]> {
+async function fetchPsnTitles(psnAuthTokens: PsnAuthTokens, accountId: string): Promise<TitleDTO[]> {
     // @ts-ignore
     const {getUserPlayedGames} = await import("psn-api");
 
@@ -36,7 +36,7 @@ async function fetchPsnTitles(authData: AuthData): Promise<TitleDTO[]> {
     let offset = 0;
     let result: TitleDTO[] = [];
     while (true) {
-        const userPlayedGamesResponse = await getUserPlayedGames(authData.tokens, authData.accountId, {limit, offset});
+        const userPlayedGamesResponse = await getUserPlayedGames(psnAuthTokens, accountId, {limit, offset});
         const pagePsnTitles: TitleDTO[] = userPlayedGamesResponse.titles
             // @ts-ignore
             .filter(t => t.category === 'ps4_game' || t.category === 'ps5_native_game' || t.category === 'unknown')
@@ -72,14 +72,14 @@ export function normalizePlatform(psnPlatform: string): string {
     }
 }
 
-async function fetchUserTitles(authData: AuthData): Promise<TrophySetDTO[]> {
+async function fetchUserTitles(psnAuthTokens: PsnAuthTokens, accountId: string): Promise<TrophySetDTO[]> {
     const limit = 200;
     let offset = 0;
     const result: TrophySetDTO[] = [];
     // @ts-ignore
     const {getUserTitles} = await import("psn-api");
     while (true) {
-        const userTitlesResponse = await getUserTitles(authData.tokens, authData.accountId, {limit, offset});
+        const userTitlesResponse = await getUserTitles(psnAuthTokens, accountId, {limit, offset});
         // @ts-ignore
         const pageUserTitles = userTitlesResponse.trophyTitles.map(trophyTitle => {
             return {
@@ -100,22 +100,22 @@ async function fetchUserTitles(authData: AuthData): Promise<TrophySetDTO[]> {
     return result;
 }
 
-export async function getTitlesData(authData: AuthData): Promise<PsnTitlesTrophySetResponseDTO> {
+export async function getTitlesData(psnAuthTokens: PsnAuthTokens, accountId: string): Promise<PsnTitlesTrophySetResponseDTO> {
     console.info("Fetching titles and trophy sets data...");
     // @ts-ignore
     const {getUserTrophiesForSpecificTitle} = await import("psn-api");
     const chunkBy = <T>(arr: T[], size: number) =>
         Array.from({length: Math.ceil(arr.length / size)}, (_, i) => arr.slice(i * size, (i + 1) * size));
 
-    const psnTitles: TitleDTO[] = await fetchPsnTitles(authData);
-    const trophySets: TrophySetDTO[] = await fetchUserTitles(authData);
+    const psnTitles: TitleDTO[] = await fetchPsnTitles(psnAuthTokens, accountId);
+    const trophySets: TrophySetDTO[] = await fetchUserTitles(psnAuthTokens, accountId);
     const trophySetIds: string[] = trophySets.map(t => t.id);
 
     let joinList: TitleTrophySetDTO[] = [];
     const NP_TITLE_CHUNK_SIZE = 5;
     for (const chunk of chunkBy(psnTitles, NP_TITLE_CHUNK_SIZE)) {
         const options = {npTitleIds: chunk.map(t => t.id).join(",")}
-        const trophySetResponse = await getUserTrophiesForSpecificTitle(authData.tokens, authData.accountId, options);
+        const trophySetResponse = await getUserTrophiesForSpecificTitle(psnAuthTokens, accountId, options);
 
         for (const title of trophySetResponse.titles) {
             for (const trophyTitle of title.trophyTitles) {

@@ -1,7 +1,7 @@
 import {Pool} from "pg";
 import {TitleDTO} from "../psn-titles-trophy-sets.js";
-import {AuthData} from "../auth.js";
 import {buildInsertPlaceholders} from "./postgres-utils.js";
+import {PsnUserDto} from "../../psn/models/psnUserDto.js";
 
 
 export async function insertTitlesIntoPostgres(pool: Pool, titles: TitleDTO[]): Promise<any> {
@@ -9,7 +9,7 @@ export async function insertTitlesIntoPostgres(pool: Pool, titles: TitleDTO[]): 
         console.info("No titles to insert into postgres database.");
         return;
     }
-  
+
     const values: string[] = [];
     const placeholders: string = titles.map((t, idx) => {
         const currentValues = [t.id, t.name, t.category, t.imageUrl];
@@ -20,7 +20,7 @@ export async function insertTitlesIntoPostgres(pool: Pool, titles: TitleDTO[]): 
     const insert = await pool.query(`
         INSERT INTO psn.title (id, name, category, image_url)
         VALUES
-        ${placeholders} ON CONFLICT (id)
+            ${placeholders} ON CONFLICT (id)
         DO NOTHING
     `, values);
 
@@ -29,7 +29,8 @@ export async function insertTitlesIntoPostgres(pool: Pool, titles: TitleDTO[]): 
     console.info(`Inserted ${nbInserted} titles into postgres database ${nbIgnored > 0 ? `(${nbIgnored} ignored)` : ''}`);
 }
 
-export async function insertUserTitlesIntoPostgres(pool: Pool, authData: AuthData, titles: TitleDTO[]): Promise<any> {
+
+export async function insertUserTitlesIntoPostgres(pool: Pool, userDto: PsnUserDto, titles: TitleDTO[]): Promise<any> {
     if (titles.length === 0) {
         console.info("No user titles to insert into postgres database.");
         return;
@@ -37,7 +38,7 @@ export async function insertUserTitlesIntoPostgres(pool: Pool, authData: AuthDat
 
     const values: string[] = [];
     const placeholders: string = titles.map((title, idx) => {
-        const currentValues = [authData.userInfo.id, title.id, title.lastPlayedDateTime];
+        const currentValues = [userDto.id, title.id, title.lastPlayedDateTime];
         values.push(...currentValues);
         return buildInsertPlaceholders(currentValues, idx);
     }).join(',');
@@ -45,7 +46,7 @@ export async function insertUserTitlesIntoPostgres(pool: Pool, authData: AuthDat
     const insert = await pool.query(`
         INSERT INTO psn.user_played_title (user_id, title_id, last_played_at)
         VALUES
-        ${placeholders} ON CONFLICT (user_id,title_id)
+            ${placeholders} ON CONFLICT (user_id,title_id)
         DO
         UPDATE SET last_played_at=EXCLUDED.last_played_at
     `, values);

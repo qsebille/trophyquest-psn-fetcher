@@ -1,5 +1,5 @@
-import {AuthData} from "./auth.js";
 import {TrophySetDTO} from "./psn-titles-trophy-sets.js";
+import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
 
 export type TrophyDTO = {
     id: string;
@@ -24,13 +24,17 @@ export type TrophyResponseDTO = {
     earnedTrophies: EarnedTrophyDTO[];
 }
 
-export async function getTrophiesData(auth: AuthData, trophySets: TrophySetDTO[]): Promise<TrophyResponseDTO> {
+export async function getTrophiesData(
+    psnAuthTokens: PsnAuthTokens,
+    accountId: string,
+    trophySets: TrophySetDTO[],
+): Promise<TrophyResponseDTO> {
     let trophies: TrophyDTO[] = [];
     let earnedTrophies: EarnedTrophyDTO[] = [];
 
     for (const trophySet of trophySets) {
         console.info(`--- Processing trophies of ${trophySet.name} (${trophySet.id})`)
-        const gameTrophyResponse = await fetchPsnGameTrophies(auth, trophySet.id, trophySet.platform);
+        const gameTrophyResponse = await fetchPsnGameTrophies(psnAuthTokens, trophySet.id, trophySet.platform);
         //@ts-ignore
         const currentTrophies: TrophyDTO[] = gameTrophyResponse.trophies.map(trophy => {
             return {
@@ -46,7 +50,7 @@ export async function getTrophiesData(auth: AuthData, trophySets: TrophySetDTO[]
             }
         });
 
-        const earnedTrophyResponse = await fetchPsnEarnedGameTrophies(auth, trophySet.id, trophySet.platform);
+        const earnedTrophyResponse = await fetchPsnEarnedGameTrophies(psnAuthTokens, accountId, trophySet.id, trophySet.platform);
         const currentEarnedTrophies: EarnedTrophyDTO[] = earnedTrophyResponse.trophies
             // @ts-ignore
             .filter(trophy => trophy.earnedDateTime !== undefined)
@@ -54,7 +58,7 @@ export async function getTrophiesData(auth: AuthData, trophySets: TrophySetDTO[]
             .map(trophy => {
                 return {
                     trophyId: `${trophySet.id}-${trophy.trophyId}`,
-                    userId: auth.userInfo.id,
+                    userId: accountId,
                     earnedDateTime: trophy.earnedDateTime,
                 }
             });
@@ -66,24 +70,26 @@ export async function getTrophiesData(auth: AuthData, trophySets: TrophySetDTO[]
     return {trophies, earnedTrophies}
 }
 
-async function fetchPsnGameTrophies(auth: AuthData, npCommunicationId: string, platform: string) {
+async function fetchPsnGameTrophies(psnAuthTokens: PsnAuthTokens, npCommunicationId: string, platform: string) {
     //@ts-ignore
     const {getTitleTrophies} = await import("psn-api");
     switch (platform) {
         case "PS5":
-            return getTitleTrophies(auth.tokens, npCommunicationId, "all");
+            return getTitleTrophies(psnAuthTokens, npCommunicationId, "all");
         default:
-            return await getTitleTrophies(auth.tokens, npCommunicationId, "all", {npServiceName: "trophy"});
+            return await getTitleTrophies(psnAuthTokens, npCommunicationId, "all", {npServiceName: "trophy"});
     }
 }
 
-async function fetchPsnEarnedGameTrophies(auth: AuthData, npCommunicationId: string, platform: string) {
+async function fetchPsnEarnedGameTrophies(psnAuthTokens: PsnAuthTokens,
+                                          accountId: string, npCommunicationId: string,
+                                          platform: string) {
     //@ts-ignore
     const {getUserTrophiesEarnedForTitle} = await import("psn-api");
     switch (platform) {
         case "PS5":
-            return await getUserTrophiesEarnedForTitle(auth.tokens, auth.accountId, npCommunicationId, "all");
+            return await getUserTrophiesEarnedForTitle(psnAuthTokens, accountId, npCommunicationId, "all");
         default:
-            return await getUserTrophiesEarnedForTitle(auth.tokens, auth.accountId, npCommunicationId, "all", {npServiceName: "trophy"});
+            return await getUserTrophiesEarnedForTitle(psnAuthTokens, accountId, npCommunicationId, "all", {npServiceName: "trophy"});
     }
 }
