@@ -5,4 +5,5 @@ export type PsnTrophySet = {
     platform: string;
     version: string;
     serviceName: string;
+    lastUpdatedDateTime: string;
 }
