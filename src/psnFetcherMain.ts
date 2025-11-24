@@ -49,9 +49,9 @@ async function main() {
         console.info(`Found ${titleTrophySets.length} titles / trophy sets links`)
 
         // Fetch trophies for each title
-        const trophyResponseDTO: PsnTrophyResponse = await fetchPsnUserTrophies(trophySets, psnAuthTokens, accountId);
-        console.info(`Found ${trophyResponseDTO.trophies.length} trophies`);
-        console.info(`Found ${trophyResponseDTO.earnedTrophies.length} earned trophies`);
+        const trophyResponse: PsnTrophyResponse = await fetchPsnUserTrophies(trophySets, psnAuthTokens, accountId);
+        console.info(`Found ${trophyResponse.trophies.length} trophies`);
+        console.info(`Found ${trophyResponse.earnedTrophies.length} earned trophies`);
 
         // Insertion into postgres database
         await upsertUserProfileIntoPostgres(pool, psnUser);
@@ -59,8 +59,8 @@ async function main() {
         await insertUserPlayedTitlesIntoPostgres(pool, psnUser, titles);
         await insertTrophySetsIntoPostgres(pool, trophySets);
         await insertTitlesTrophySetIntoPostgres(pool, titleTrophySets);
-        await insertTrophiesIntoPostgres(pool, trophyResponseDTO.trophies);
-        await insertEarnedTrophiesIntoPostgres(pool, trophyResponseDTO.earnedTrophies);
+        await insertTrophiesIntoPostgres(pool, trophyResponse.trophies);
+        await insertEarnedTrophiesIntoPostgres(pool, trophyResponse.earnedTrophies);
 
         console.info("SUCCESS");
     } finally {

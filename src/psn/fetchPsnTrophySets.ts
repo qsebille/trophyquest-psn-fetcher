@@ -30,6 +30,7 @@ export async function fetchPsnTrophySets(psnAuthTokens: PsnAuthTokens, accountId
                 name: trophyTitle.trophyTitleName,
                 iconUrl: trophyTitle.trophyTitleIconUrl,
                 version: trophyTitle.trophySetVersion,
+                lastUpdatedDateTime: trophyTitle.lastUpdatedDateTime,
                 platform,
             }
         });
