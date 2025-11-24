@@ -59,7 +59,7 @@ async function fetchPsnTitles(authData: AuthData): Promise<TitleDTO[]> {
     return result;
 }
 
-function normalizePlatform(psnPlatform: string): string {
+export function normalizePlatform(psnPlatform: string): string {
     const allPlatforms: string[] = psnPlatform.split(",");
     if (allPlatforms.filter(p => p === "PS5").length === 1) {
         return "PS5";

@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "start-fetcher": "tsx src/psn-fetcher-main.ts",
-    "start-transformer": "tsx src/psn-transformer-main.ts"
+    "start-transformer": "tsx src/psn-transformer-main.ts",
+    "test": "tsx --test"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
