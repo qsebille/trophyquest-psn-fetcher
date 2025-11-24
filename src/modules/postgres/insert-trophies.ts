@@ -1,6 +1,6 @@
 import {Pool} from "pg";
 import {EarnedTrophyDTO, TrophyDTO} from "../psn-trophy.js";
-import {buildInsertPlaceholders} from "./postgres-utils.js";
+import {buildPostgresInsertPlaceholders} from "../../postgres/utils/buildPostgresInsertPlaceholders.js";
 
 const TROPHY_BATCH_SIZE: number = 200;
 
@@ -29,14 +29,14 @@ export async function insertTrophiesIntoPostgres(pool: Pool, trophies: TrophyDTO
                 t.groupId,
             ];
             values.push(...currentValues);
-            return buildInsertPlaceholders(currentValues, idx);
+            return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');
 
         const insert = await pool.query(`
             INSERT INTO psn.trophy (id, trophy_set_id, rank, title, detail, is_hidden, trophy_type, icon_url,
                                     game_group_id)
             VALUES
-            ${placeholders} ON CONFLICT (id)
+                ${placeholders} ON CONFLICT (id)
             DO NOTHING
         `, values);
 
@@ -66,13 +66,13 @@ export async function insertEarnedTrophiesIntoPostgres(pool: Pool, earnedTrophie
                 trophy.earnedDateTime,
             ];
             values.push(...currentValues);
-            return buildInsertPlaceholders(currentValues, idx);
+            return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');
 
         const insert = await pool.query(`
             INSERT INTO psn.user_earned_trophy (trophy_id, user_id, earned_at)
             VALUES
-            ${placeholders} ON CONFLICT (trophy_id,user_id)
+                ${placeholders} ON CONFLICT (trophy_id,user_id)
             DO NOTHING
         `, values);
 

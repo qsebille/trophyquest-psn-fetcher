@@ -1,18 +1,22 @@
 import {getParams, Params} from "./config/params.js";
-import {getTitlesData, PsnTitlesTrophySetResponseDTO} from "./modules/psn-titles-trophy-sets.js";
-import {insertUserIntoPostgres} from "./modules/postgres/insert-user.js";
-import {insertTitlesIntoPostgres, insertUserTitlesIntoPostgres} from "./modules/postgres/insert-titles.js";
-import {
-    insertTitlesTrophySetIntoPostgres,
-    insertTrophySetsIntoPostgres
-} from "./modules/postgres/insert-trophy-sets.js";
-import {getTrophiesData, TrophyResponseDTO} from "./modules/psn-trophy.js";
-import {insertEarnedTrophiesIntoPostgres, insertTrophiesIntoPostgres} from "./modules/postgres/insert-trophies.js";
-import {buildPostgresPool} from "./postgres/postgres-pool.js";
+import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
 import {getPsnAuthTokens, PsnAuthTokens} from "./auth/psnAuthTokens.js";
-import {PsnUserDto} from "./psn/models/psnUserDto.js";
+import {PsnUser} from "./psn/models/psnUser.js";
 import {fetchPsnUser} from "./psn/fetchPsnUser.js";
+import {PsnTitle} from "./psn/models/psnTitle.js";
+import {fetchPsnTitles} from "./psn/fetchPsnTitles.js";
+import {PsnTrophySet} from "./psn/models/psnTrophySet.js";
+import {fetchPsnTrophySets} from "./psn/fetchPsnTrophySets.js";
+import {fetchPsnTitlesTrophySet} from "./psn/fetchPsnTitlesTrophySet.js";
+import {PsnTitleTrophySet} from "./psn/models/psnTitleTrophySet.js";
+import {getTrophiesData, TrophyResponseDTO} from "./modules/psn-trophy.js";
+import {insertEarnedTrophiesIntoPostgres, insertTrophiesIntoPostgres} from "./modules/postgres/insert-trophies.js";
+import {insertTitlesIntoPostgres} from "./postgres/insertTitlesIntoPostgres.js";
+import {insertUserTitlesIntoPostgres} from "./postgres/insertUserTitlesIntoPostgres.js";
+import {insertTrophySetsIntoPostgres} from "./postgres/insertTrophySetsIntoPostgres.js";
+import {insertTitlesTrophySetIntoPostgres} from "./postgres/insertTitlesTrophySetIntoPostgres.js";
+import {insertUserIntoPostgres} from "./postgres/insertUserIntoPostgres.js";
 
 
 async function main() {
@@ -22,26 +26,30 @@ async function main() {
     const pool: Pool = buildPostgresPool();
 
     try {
-        // Authenticate and add profile in database
+        // Authenticate and fetch user data
         const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(params.npsso);
-        const psnUser: PsnUserDto = await fetchPsnUser(psnAuthTokens, params.profileName);
+        const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, params.profileName);
         const accountId: string = psnUser.id;
-        await insertUserIntoPostgres(pool, psnUser);
 
-        // Fetch titles and trophy sets
-        const titlesResponseDTO: PsnTitlesTrophySetResponseDTO = await getTitlesData(psnAuthTokens,
-            accountId);
-        console.info(`Found ${titlesResponseDTO.titles.length} titles`);
-        console.info(`Found ${titlesResponseDTO.trophySets.length} trophy sets`);
-        await insertTitlesIntoPostgres(pool, titlesResponseDTO.titles);
-        await insertUserTitlesIntoPostgres(pool, psnUser, titlesResponseDTO.titles);
-        await insertTrophySetsIntoPostgres(pool, titlesResponseDTO.trophySets);
-        await insertTitlesTrophySetIntoPostgres(pool, titlesResponseDTO.links);
+        // Fetch titles and trophy sets for a user
+        const titles: PsnTitle[] = await fetchPsnTitles(psnAuthTokens, accountId);
+        console.info(`Found ${titles.length} titles`);
+        const trophySets: PsnTrophySet[] = await fetchPsnTrophySets(psnAuthTokens, accountId);
+        console.info(`Found ${trophySets.length} trophy sets`);
+        const titleTrophySets: PsnTitleTrophySet[] = await fetchPsnTitlesTrophySet(titles, trophySets, psnAuthTokens, accountId);
+        console.info(`Found ${titleTrophySets} titles / trophy sets links`)
 
         // Fetch trophies for each title
-        const trophyResponseDTO: TrophyResponseDTO = await getTrophiesData(psnAuthTokens, accountId, titlesResponseDTO.trophySets);
+        const trophyResponseDTO: TrophyResponseDTO = await getTrophiesData(psnAuthTokens, accountId, trophySets);
         console.info(`Found ${trophyResponseDTO.trophies.length} trophies`);
         console.info(`Found ${trophyResponseDTO.earnedTrophies.length} earned trophies`);
+
+        // Insertion into postgres database
+        await insertUserIntoPostgres(pool, psnUser);
+        await insertTitlesIntoPostgres(pool, titles);
+        await insertUserTitlesIntoPostgres(pool, psnUser, titles);
+        await insertTrophySetsIntoPostgres(pool, trophySets);
+        await insertTitlesTrophySetIntoPostgres(pool, titleTrophySets);
         await insertTrophiesIntoPostgres(pool, trophyResponseDTO.trophies);
         await insertEarnedTrophiesIntoPostgres(pool, trophyResponseDTO.earnedTrophies);
 

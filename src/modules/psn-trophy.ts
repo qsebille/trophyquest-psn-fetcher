@@ -1,5 +1,5 @@
-import {TrophySetDTO} from "./psn-titles-trophy-sets.js";
 import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
+import {PsnTrophySet} from "../psn/models/psnTrophySet.js";
 
 export type TrophyDTO = {
     id: string;
@@ -27,7 +27,7 @@ export type TrophyResponseDTO = {
 export async function getTrophiesData(
     psnAuthTokens: PsnAuthTokens,
     accountId: string,
-    trophySets: TrophySetDTO[],
+    trophySets: PsnTrophySet[],
 ): Promise<TrophyResponseDTO> {
     let trophies: TrophyDTO[] = [];
     let earnedTrophies: EarnedTrophyDTO[] = [];
