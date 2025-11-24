@@ -10,13 +10,15 @@ import {PsnTrophySet} from "./psn/models/psnTrophySet.js";
 import {fetchPsnTrophySets} from "./psn/fetchPsnTrophySets.js";
 import {fetchPsnTitlesTrophySet} from "./psn/fetchPsnTitlesTrophySet.js";
 import {PsnTitleTrophySet} from "./psn/models/psnTitleTrophySet.js";
-import {getTrophiesData, TrophyResponseDTO} from "./modules/psn-trophy.js";
-import {insertEarnedTrophiesIntoPostgres, insertTrophiesIntoPostgres} from "./modules/postgres/insert-trophies.js";
+import {fetchPsnUserTrophies} from "./psn/fetchPsnTrophies.js";
 import {insertTitlesIntoPostgres} from "./postgres/insertTitlesIntoPostgres.js";
 import {insertUserTitlesIntoPostgres} from "./postgres/insertUserTitlesIntoPostgres.js";
 import {insertTrophySetsIntoPostgres} from "./postgres/insertTrophySetsIntoPostgres.js";
 import {insertTitlesTrophySetIntoPostgres} from "./postgres/insertTitlesTrophySetIntoPostgres.js";
 import {insertUserIntoPostgres} from "./postgres/insertUserIntoPostgres.js";
+import {PsnTrophyResponse} from "./psn/models/psnTrophyResponse.js";
+import {insertTrophiesIntoPostgres} from "./postgres/insertTrophiesIntoPostgres.js";
+import {insertEarnedTrophiesIntoPostgres} from "./postgres/insertEarnedTrophiesIntoPostgres.js";
 
 
 async function main() {
@@ -37,10 +39,10 @@ async function main() {
         const trophySets: PsnTrophySet[] = await fetchPsnTrophySets(psnAuthTokens, accountId);
         console.info(`Found ${trophySets.length} trophy sets`);
         const titleTrophySets: PsnTitleTrophySet[] = await fetchPsnTitlesTrophySet(titles, trophySets, psnAuthTokens, accountId);
-        console.info(`Found ${titleTrophySets} titles / trophy sets links`)
+        console.info(`Found ${titleTrophySets.length} titles / trophy sets links`)
 
         // Fetch trophies for each title
-        const trophyResponseDTO: TrophyResponseDTO = await getTrophiesData(psnAuthTokens, accountId, trophySets);
+        const trophyResponseDTO: PsnTrophyResponse = await fetchPsnUserTrophies(trophySets, psnAuthTokens, accountId);
         console.info(`Found ${trophyResponseDTO.trophies.length} trophies`);
         console.info(`Found ${trophyResponseDTO.earnedTrophies.length} earned trophies`);
 
