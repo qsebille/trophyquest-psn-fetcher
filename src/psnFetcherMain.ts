@@ -39,6 +39,7 @@ async function main() {
         const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(params.npsso);
         const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, params.profileName);
         const accountId: string = psnUser.id;
+        console.info(`Fetched user ${psnUser.profileName} (${accountId}) from PSN API`);
 
         // Fetch titles and trophy sets for a user
         const titles: PsnTitle[] = await fetchPsnTitles(psnAuthTokens, accountId);
