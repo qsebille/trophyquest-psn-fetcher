@@ -1,8 +1,8 @@
-import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
-import {PsnTrophySet} from "./models/psnTrophySet.js";
-import {PsnTrophy} from "./models/psnTrophy.js";
-import {PsnEarnedTrophy} from "./models/psnEarnedTrophy.js";
-import {PsnTrophyResponse} from "./models/psnTrophyResponse.js";
+import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
+import {PsnTrophySet} from "../models/psnTrophySet.js";
+import {PsnTrophy} from "../models/psnTrophy.js";
+import {PsnEarnedTrophy} from "../models/psnEarnedTrophy.js";
+import {PsnTrophyResponse} from "../models/psnTrophyResponse.js";
 import {fetchPsnTrophiesForSet} from "./fetchPsnTrophiesForSet.js";
 import {fetchPsnEarnedTrophiesForSet} from "./fetchPsnEarnedTrophiesForSet.js";
 
@@ -14,7 +14,11 @@ import {fetchPsnEarnedTrophiesForSet} from "./fetchPsnEarnedTrophiesForSet.js";
  * @param {string} accountId - The user's PSN account ID.
  * @return {Promise<PsnTrophyResponse>} A promise that resolves to an object containing the fetched trophies and earned trophies.
  */
-export async function fetchPsnUserTrophies(trophySets: PsnTrophySet[], psnAuthTokens: PsnAuthTokens, accountId: string): Promise<PsnTrophyResponse> {
+export async function fetchPsnUserTrophies(
+    trophySets: PsnTrophySet[],
+    psnAuthTokens: PsnAuthTokens,
+    accountId: string
+): Promise<PsnTrophyResponse> {
     let trophies: PsnTrophy[] = [];
     let earnedTrophies: PsnEarnedTrophy[] = [];
 

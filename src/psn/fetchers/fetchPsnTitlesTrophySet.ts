@@ -1,7 +1,7 @@
-import {PsnTitle} from "./models/psnTitle.js";
-import {PsnTrophySet} from "./models/psnTrophySet.js";
-import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
-import {PsnTitleTrophySet} from "./models/psnTitleTrophySet.js";
+import {PsnTitle} from "../models/psnTitle.js";
+import {PsnTrophySet} from "../models/psnTrophySet.js";
+import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
+import {PsnTitleTrophySet} from "../models/psnTitleTrophySet.js";
 
 const TITLE_CHUNK_SIZE = 5;
 

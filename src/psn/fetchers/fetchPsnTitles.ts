@@ -1,5 +1,5 @@
-import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
-import {PsnTitle} from "./models/psnTitle.js";
+import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
+import {PsnTitle} from "../models/psnTitle.js";
 
 const TITLE_SEARCH_LIMIT: number = 200;
 
@@ -10,7 +10,10 @@ const TITLE_SEARCH_LIMIT: number = 200;
  * @param {string} accountId - The unique account ID of the PlayStation user.
  * @return {Promise<PsnTitle[]>} A promise that resolves to an array of PlayStation titles played by the user.
  */
-export async function fetchPsnTitles(psnAuthTokens: PsnAuthTokens, accountId: string): Promise<PsnTitle[]> {
+export async function fetchPsnTitles(
+    psnAuthTokens: PsnAuthTokens,
+    accountId: string
+): Promise<PsnTitle[]> {
     // @ts-ignore
     const {getUserPlayedGames} = await import("psn-api");
 

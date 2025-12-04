@@ -1,6 +1,6 @@
-import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
-import {PsnTrophySet} from "./models/psnTrophySet.js";
-import {normalizePsnPlatform} from "./utils/normalizePsnPlatform.js";
+import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
+import {PsnTrophySet} from "../models/psnTrophySet.js";
+import {normalizePsnPlatform} from "../utils/normalizePsnPlatform.js";
 
 const PSN_TITLE_BATCH_SIZE: number = 200
 
@@ -11,7 +11,10 @@ const PSN_TITLE_BATCH_SIZE: number = 200
  * @param {string} accountId - The account ID for the user whose trophy sets are being retrieved.
  * @return {Promise<PsnTrophySet[]>} A promise that resolves to an array of PSN trophy sets.
  */
-export async function fetchPsnTrophySets(psnAuthTokens: PsnAuthTokens, accountId: string): Promise<PsnTrophySet[]> {
+export async function fetchPsnTrophySets(
+    psnAuthTokens: PsnAuthTokens,
+    accountId: string
+): Promise<PsnTrophySet[]> {
     // @ts-ignore
     const {getUserTitles} = await import("psn-api");
 
