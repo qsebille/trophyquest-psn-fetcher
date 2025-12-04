@@ -1,6 +1,6 @@
-import {PsnTrophySet} from "./models/psnTrophySet.js";
-import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
-import {PsnEarnedTrophy} from "./models/psnEarnedTrophy.js";
+import {PsnTrophySet} from "../models/psnTrophySet.js";
+import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
+import {PsnEarnedTrophy} from "../models/psnEarnedTrophy.js";
 
 
 /**
@@ -11,7 +11,11 @@ import {PsnEarnedTrophy} from "./models/psnEarnedTrophy.js";
  * @param {string} accountId - The account ID of the PSN user for whom the earned trophies are being retrieved.
  * @return {Promise<PsnEarnedTrophy[]>} A promise that resolves to an array of earned trophy objects containing their IDs, the user ID, and the earned date and time.
  */
-export async function fetchPsnEarnedTrophiesForSet(psnTrophySet: PsnTrophySet, psnAuthTokens: PsnAuthTokens, accountId: string): Promise<PsnEarnedTrophy[]> {
+export async function fetchPsnEarnedTrophiesForSet(
+    psnTrophySet: PsnTrophySet,
+    psnAuthTokens: PsnAuthTokens,
+    accountId: string
+): Promise<PsnEarnedTrophy[]> {
     //@ts-ignore
     const {getUserTrophiesEarnedForTitle} = await import("psn-api");
 

@@ -1,6 +1,6 @@
-import {PsnTrophySet} from "./models/psnTrophySet.js";
-import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
-import {PsnTrophy} from "./models/psnTrophy.js";
+import {PsnTrophySet} from "../models/psnTrophySet.js";
+import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
+import {PsnTrophy} from "../models/psnTrophy.js";
 
 /**
  * Fetches PlayStation Network (PSN) trophies for a given trophy set.
@@ -9,7 +9,10 @@ import {PsnTrophy} from "./models/psnTrophy.js";
  * @param {PsnAuthTokens} psnAuthTokens - Authentication tokens required to access the PSN API.
  * @return {Promise<PsnTrophy[]>} A promise that resolves with an array of trophies belonging to the specified trophy set, including details such as id, rank, title, and type.
  */
-export async function fetchPsnTrophiesForSet(psnTrophySet: PsnTrophySet, psnAuthTokens: PsnAuthTokens): Promise<PsnTrophy[]> {
+export async function fetchPsnTrophiesForSet(
+    psnTrophySet: PsnTrophySet,
+    psnAuthTokens: PsnAuthTokens
+): Promise<PsnTrophy[]> {
     //@ts-ignore
     const {getTitleTrophies} = await import("psn-api");
 

@@ -1,5 +1,5 @@
-import {PsnUser} from "./models/psnUser.js";
-import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
+import {PsnUser} from "../models/psnUser.js";
+import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
 
 /**
  * Fetches the PlayStation Network (PSN) user profile based on the provided authentication tokens and profile name.

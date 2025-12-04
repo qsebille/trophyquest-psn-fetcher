@@ -3,7 +3,7 @@ import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
 import {getPsnAuthTokens, PsnAuthTokens} from "./auth/psnAuthTokens.js";
 import {PsnUser} from "./psn/models/psnUser.js";
-import {fetchPsnUser} from "./psn/fetchPsnUser.js";
+import {fetchPsnUser} from "./psn/fetchers/fetchPsnUser.js";
 import {deleteUserProfile} from "./postgres/deleteUserProfile.js";
 
 
