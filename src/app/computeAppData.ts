@@ -34,13 +34,13 @@ function computeAppData(psnData: PsnDataWrapper): AppDataWrapper {
     console.info(`Computed ${appEarnedTrophies.length} app earned trophies.`);
 
     return {
-        users: appPlayers,
+        players: appPlayers,
         games: appGames,
-        userGames: appPlayedGames,
+        playedGames: appPlayedGames,
         trophyCollections: appTrophyCollections,
-        userTrophyCollections: appPlayedTrophyCollections,
+        playedTrophyCollections: appPlayedTrophyCollections,
         trophies: appTrophies,
-        userTrophies: appEarnedTrophies,
+        earnedTrophies: appEarnedTrophies,
     };
 }
 

@@ -7,11 +7,11 @@ import {AppTrophy} from "../appTrophy.js";
 import {AppEarnedTrophy} from "../appEarnedTrophy.js";
 
 export interface AppDataWrapper {
-    users: AppPlayer[];
+    players: AppPlayer[];
     games: AppGame[];
-    userGames: AppPlayedGame[];
+    playedGames: AppPlayedGame[];
     trophyCollections: AppTrophyCollection[];
-    userTrophyCollections: AppPlayedTrophyCollection[];
+    playedTrophyCollections: AppPlayedTrophyCollection[];
     trophies: AppTrophy[];
-    userTrophies: AppEarnedTrophy[];
+    earnedTrophies: AppEarnedTrophy[];
 }

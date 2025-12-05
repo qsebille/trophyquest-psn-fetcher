@@ -7,6 +7,7 @@ import {fetchPsnUserData} from "./psn/fetchPsnUserData.js";
 import {insertPsnData} from "./postgres/insertPsnData.js";
 import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
 import computeAppData from "./app/computeAppData.js";
+import {insertAppData} from "./postgres/insertAppData.js";
 
 
 /**
@@ -27,9 +28,9 @@ async function main(): Promise<void> {
         const psnData: PsnDataWrapper = await fetchPsnUserData(psnAuthTokens, params);
         await insertPsnData(pool, psnData);
         const appData: AppDataWrapper = computeAppData(psnData);
-
-        console.info("SUCCESS");
+        await insertAppData(pool, appData);
     } finally {
+        console.info("SUCCESS");
         const durationSeconds = (Date.now() - startTime) / 1000;
         console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);
         await pool.end();
