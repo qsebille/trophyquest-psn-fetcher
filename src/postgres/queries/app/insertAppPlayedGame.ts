@@ -15,7 +15,6 @@ export async function insertAppPlayedGame(
 
     const batchSize: number = playedGames.length > 1000 ? 1000 : playedGames.length;
     let rowsInserted: number = 0;
-    let rowsIgnored: number = 0;
 
     for (let i = 0; i < playedGames.length; i += batchSize) {
         const batch = playedGames.slice(i, i + batchSize);
@@ -31,12 +30,13 @@ export async function insertAppPlayedGame(
 
         const insert = await client.query(`
             INSERT INTO app.played_game (player_id, game_id, last_played_at)
-            VALUES ${placeholders} ON CONFLICT (player_id,game_id) DO NOTHING
+            VALUES ${placeholders} ON CONFLICT (player_id,game_id) DO
+            UPDATE
+                SET last_played_at=EXCLUDED.last_played_at
         `, values);
 
         rowsInserted += insert.rowCount ?? 0;
-        rowsIgnored += (batch.length - (insert.rowCount ?? 0));
     }
 
-    return {rowsInserted, rowsIgnored};
+    return {rowsInserted, rowsIgnored: 0};
 }
