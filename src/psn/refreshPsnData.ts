@@ -11,22 +11,22 @@ import {fetchPsnTrophySets} from "./fetchers/fetchPsnTrophySets.js";
 import {fetchPsnTitlesTrophySet} from "./fetchers/fetchPsnTitlesTrophySet.js";
 import {PsnTrophyResponse} from "./models/psnTrophyResponse.js";
 import {fetchPsnUserTrophies} from "./fetchers/fetchPsnTrophies.js";
-import {AppPlayer} from "../app/models/appPlayer.js";
 import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
 import {PsnDataWrapper} from "./models/wrappers/psnDataWrapper.js";
 import {PsnPlayedTrophySet} from "./models/psnPlayedTrophySet.js";
 import {buildPsnPlayedTrophySet} from "./builders/buildPsnPlayedTrophySet.js";
+import {PsnUserProfilePostgres} from "../postgres/models/psnUserProfilePostgres.js";
+
 
 /**
- * Fetches and refreshes PlayStation Network (PSN) data for multiple user profiles.
- * This includes updated user information, titles, played titles, trophy sets, trophy links, trophies, and earned trophies.
+ * Refreshes and updates PlayStation Network (PSN) data for given users, including their titles, trophy sets, trophies, and earned trophies.
  *
- * @param {AppPlayer[]} userProfiles - An array of user profiles from the Postgres database to fetch and refresh data for.
- * @param {PsnAuthTokens} psnAuthTokens - The authentication tokens required to interact with the PSN API.
- * @return {Promise<PsnDataWrapper>} A promise that resolves with the wrapped PSN data, including updated users, titles, played titles, trophy sets, title-trophy associations, trophies, and earned trophies.
+ * @param {PsnUserProfilePostgres[]} psnUsersPostgres - List of PSN user profiles fetched from the Postgres database.
+ * @param {PsnAuthTokens} psnAuthTokens - Authentication tokens required to access PSN APIs.
+ * @return {Promise<PsnDataWrapper>} A promise resolving to an object encapsulating the updated PSN data, which includes users, titles, trophy sets, title-trophy set links, trophies, played titles, played trophy sets, and earned trophies.
  */
 export async function refreshPsnData(
-    userProfiles: AppPlayer[],
+    psnUsersPostgres: PsnUserProfilePostgres[],
     psnAuthTokens: PsnAuthTokens
 ): Promise<PsnDataWrapper> {
     let psnUsers: PsnUser[] = [];
@@ -37,11 +37,11 @@ export async function refreshPsnData(
     let allPlayedTrophySets: PsnPlayedTrophySet[] = [];
     let allTrophies: PsnTrophy[] = [];
     let allEarnedTrophies: PsnEarnedTrophy[] = [];
-    for (const userProfile of userProfiles) {
-        const userLastUpdate = new Date(userProfile.updated_at);
-        const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, userProfile.pseudo);
+    for (const postgresUser of psnUsersPostgres) {
+        const userLastUpdate = new Date(postgresUser.updated_at);
+        const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, postgresUser.name);
         const accountId: string = psnUser.id;
-        console.info(`Fetched user ${userProfile.pseudo} (${accountId}) from postgres database`);
+        console.info(`Fetched user ${postgresUser.name} (${accountId}) from postgres database`);
         console.info(`Last update: ${userLastUpdate.toISOString()}`);
 
         // Fetch titles

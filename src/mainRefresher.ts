@@ -2,7 +2,6 @@ import {getParams, Params} from "./config/params.js";
 import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
 import {getPsnAuthTokens, PsnAuthTokens} from "./auth/psnAuthTokens.js";
-import {AppPlayer} from "./app/models/appPlayer.js";
 import {getAllPsnUsers} from "./postgres/queries/psn/getAllPsnUsers.js";
 import {PsnDataWrapper} from "./psn/models/wrappers/psnDataWrapper.js";
 import {refreshPsnData} from "./psn/refreshPsnData.js";
@@ -10,6 +9,7 @@ import {insertPsnData} from "./postgres/insertPsnData.js";
 import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
 import computeAppData from "./app/computeAppData.js";
 import {insertAppData} from "./postgres/insertAppData.js";
+import {PsnUserProfilePostgres} from "./postgres/models/psnUserProfilePostgres.js";
 
 
 /**
@@ -21,15 +21,15 @@ import {insertAppData} from "./postgres/insertAppData.js";
  */
 async function main(): Promise<void> {
     const startTime = Date.now();
-    console.info("START PSN Refresher")
+    console.info("START PSN Refresher");
 
     const params: Params = getParams();
     const pool: Pool = buildPostgresPool();
 
     try {
         const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(params.npsso);
-        const userProfiles: AppPlayer[] = await getAllPsnUsers(pool);
-        const psnData: PsnDataWrapper = await refreshPsnData(userProfiles, psnAuthTokens);
+        const psnUsersPostgres: PsnUserProfilePostgres[] = await getAllPsnUsers(pool);
+        const psnData: PsnDataWrapper = await refreshPsnData(psnUsersPostgres, psnAuthTokens);
         await insertPsnData(pool, psnData);
         const appData: AppDataWrapper = computeAppData(psnData);
         await insertAppData(pool, appData);

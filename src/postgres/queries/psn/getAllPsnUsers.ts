@@ -1,8 +1,8 @@
 import {Pool} from "pg";
-import {AppPlayer} from "../../../app/models/appPlayer.js";
+import {PsnUserProfilePostgres} from "../../models/psnUserProfilePostgres.js";
 
 
-export async function getAllPsnUsers(pool: Pool): Promise<AppPlayer[]> {
+export async function getAllPsnUsers(pool: Pool): Promise<PsnUserProfilePostgres[]> {
     const userQueryResult = await pool.query("SELECT * FROM psn.user_profile");
 
     return userQueryResult.rows;

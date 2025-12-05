@@ -3,8 +3,7 @@ import {UserStaging} from "./staging/userStaging.js";
 export interface AppPlayer {
     id: string,
     pseudo: string,
-    avatar_url: string,
-    updated_at: string
+    avatar_url: string
 }
 
 export function buildAppPlayer(userProfileStaging: UserStaging[]): AppPlayer[] {
@@ -12,8 +11,7 @@ export function buildAppPlayer(userProfileStaging: UserStaging[]): AppPlayer[] {
         return {
             id: u.userAppId,
             pseudo: u.profileName,
-            avatar_url: u.avatarUrl ?? "",
-            updated_at: ""
+            avatar_url: u.avatarUrl ?? ""
         };
     });
 }
