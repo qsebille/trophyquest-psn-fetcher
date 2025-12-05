@@ -2,7 +2,7 @@ import {PsnUser} from "./models/psnUser.js";
 import {PsnTitle} from "./models/psnTitle.js";
 import {PsnTrophySet} from "./models/psnTrophySet.js";
 import {PsnTitleTrophySet} from "./models/psnTitleTrophySet.js";
-import {PsnUserPlayedTitle} from "./models/psnUserPlayedTitle.js";
+import {PsnPlayedTitle} from "./models/psnPlayedTitle.js";
 import {PsnTrophy} from "./models/psnTrophy.js";
 import {PsnEarnedTrophy} from "./models/psnEarnedTrophy.js";
 import {fetchPsnUser} from "./fetchers/fetchPsnUser.js";
@@ -11,34 +11,37 @@ import {fetchPsnTrophySets} from "./fetchers/fetchPsnTrophySets.js";
 import {fetchPsnTitlesTrophySet} from "./fetchers/fetchPsnTitlesTrophySet.js";
 import {PsnTrophyResponse} from "./models/psnTrophyResponse.js";
 import {fetchPsnUserTrophies} from "./fetchers/fetchPsnTrophies.js";
-import {PostgresUserProfile} from "../postgres/models/postgresUserProfile.js";
 import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
 import {PsnDataWrapper} from "./models/wrappers/psnDataWrapper.js";
+import {PsnPlayedTrophySet} from "./models/psnPlayedTrophySet.js";
+import {buildPsnPlayedTrophySet} from "./builders/buildPsnPlayedTrophySet.js";
+import {PsnUserProfilePostgres} from "../postgres/models/psnUserProfilePostgres.js";
+
 
 /**
- * Fetches and refreshes PlayStation Network (PSN) data for multiple user profiles.
- * This includes updated user information, titles, played titles, trophy sets, trophy links, trophies, and earned trophies.
+ * Refreshes and updates PlayStation Network (PSN) data for given users, including their titles, trophy sets, trophies, and earned trophies.
  *
- * @param {PostgresUserProfile[]} userProfiles - An array of user profiles from the Postgres database to fetch and refresh data for.
- * @param {PsnAuthTokens} psnAuthTokens - The authentication tokens required to interact with the PSN API.
- * @return {Promise<PsnDataWrapper>} A promise that resolves with the wrapped PSN data, including updated users, titles, played titles, trophy sets, title-trophy associations, trophies, and earned trophies.
+ * @param {PsnUserProfilePostgres[]} psnUsersPostgres - List of PSN user profiles fetched from the Postgres database.
+ * @param {PsnAuthTokens} psnAuthTokens - Authentication tokens required to access PSN APIs.
+ * @return {Promise<PsnDataWrapper>} A promise resolving to an object encapsulating the updated PSN data, which includes users, titles, trophy sets, title-trophy set links, trophies, played titles, played trophy sets, and earned trophies.
  */
 export async function refreshPsnData(
-    userProfiles: PostgresUserProfile[],
+    psnUsersPostgres: PsnUserProfilePostgres[],
     psnAuthTokens: PsnAuthTokens
 ): Promise<PsnDataWrapper> {
     let psnUsers: PsnUser[] = [];
     let allTitlesToUpdate: PsnTitle[] = [];
     let allTrophySetsToUpdate: PsnTrophySet[] = [];
     let allTitleTrophySets: PsnTitleTrophySet[] = [];
-    let allPlayedTitles: PsnUserPlayedTitle[] = [];
+    let allPlayedTitles: PsnPlayedTitle[] = [];
+    let allPlayedTrophySets: PsnPlayedTrophySet[] = [];
     let allTrophies: PsnTrophy[] = [];
     let allEarnedTrophies: PsnEarnedTrophy[] = [];
-    for (const userProfile of userProfiles) {
-        const userLastUpdate = new Date(userProfile.updated_at);
-        const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, userProfile.name);
+    for (const postgresUser of psnUsersPostgres) {
+        const userLastUpdate = new Date(postgresUser.updated_at);
+        const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, postgresUser.name);
         const accountId: string = psnUser.id;
-        console.info(`Fetched user ${userProfile.name} (${accountId}) from postgres database`);
+        console.info(`Fetched user ${postgresUser.name} (${accountId}) from postgres database`);
         console.info(`Last update: ${userLastUpdate.toISOString()}`);
 
         // Fetch titles
@@ -52,6 +55,7 @@ export async function refreshPsnData(
         console.info(`Found ${trophySetsToRefresh.length} trophy sets to update, among ${trophySets.length} total trophy sets`);
         const titleTrophySets: PsnTitleTrophySet[] = await fetchPsnTitlesTrophySet(titlesToRefresh, trophySetsToRefresh, psnAuthTokens, accountId);
         console.info(`Found ${titleTrophySets.length} titles / trophy sets links`);
+        const playedTrophySets: PsnPlayedTrophySet[] = buildPsnPlayedTrophySet(psnUser, trophySetsToRefresh);
 
         // Fetch trophies for each title
         const trophyResponse: PsnTrophyResponse = await fetchPsnUserTrophies(trophySetsToRefresh, psnAuthTokens, accountId);
@@ -59,7 +63,7 @@ export async function refreshPsnData(
         console.info(`Found ${trophyResponse.earnedTrophies.length} earned trophies to update`);
 
         // Filtering data to update
-        const playedTitlesToAdd: PsnUserPlayedTitle[] = titlesToRefresh.map(t => {
+        const playedTitlesToAdd: PsnPlayedTitle[] = titlesToRefresh.map(t => {
             return {
                 userId: psnUser.id,
                 titleId: t.id,
@@ -74,10 +78,11 @@ export async function refreshPsnData(
         // Add data to arrays for insertion into postgres
         psnUsers = [...psnUsers, psnUser];
         allTitlesToUpdate = [...allTitlesToUpdate, ...titlesToUpdate];
-        allPlayedTitles = [...allPlayedTitles, ...playedTitlesToAdd];
         allTrophySetsToUpdate = [...allTrophySetsToUpdate, ...trophySetsToUpdate];
         allTitleTrophySets = [...allTitleTrophySets, ...titleTrophySets];
         allTrophies = [...allTrophies, ...trophiesToUpdate];
+        allPlayedTitles = [...allPlayedTitles, ...playedTitlesToAdd];
+        allPlayedTrophySets = [...allPlayedTrophySets, ...playedTrophySets];
         allEarnedTrophies = [...allEarnedTrophies, ...earnedTrophiesToUpdate];
     }
 
@@ -85,6 +90,7 @@ export async function refreshPsnData(
     console.info(`Found ${allTitlesToUpdate.length} titles to update`);
     console.info(`Found ${allPlayedTitles.length} played titles to update`);
     console.info(`Found ${allTrophySetsToUpdate.length} trophy sets to update`);
+    console.info(`Found ${allPlayedTrophySets.length} played trophy sets to update`);
     console.info(`Found ${allTitleTrophySets.length} titles / trophy sets links to update`);
     console.info(`Found ${allTrophies.length} trophies to update`);
     console.info(`Found ${allEarnedTrophies.length} earned trophies to update`);
@@ -92,10 +98,11 @@ export async function refreshPsnData(
     return {
         users: psnUsers,
         titles: allTitlesToUpdate,
-        playedTitles: allPlayedTitles,
         trophySets: allTrophySetsToUpdate,
         titleTrophySets: allTitleTrophySets,
         trophies: allTrophies,
+        playedTitles: allPlayedTitles,
+        playedTrophySets: allPlayedTrophySets,
         earnedTrophies: allEarnedTrophies,
     };
 }

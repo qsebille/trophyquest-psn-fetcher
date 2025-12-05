@@ -1,11 +1,11 @@
-import {insertPsnTitles} from "./queries/insertPsnTitles.js";
-import {upsertPsnUserPlayedTitles} from "./queries/upsertPsnUserPlayedTitles.js";
-import {insertPsnTrophySets} from "./queries/insertPsnTrophySets.js";
-import {insertPsnTitlesTrophySet} from "./queries/insertPsnTitlesTrophySet.js";
-import {insertPsnTrophies} from "./queries/insertPsnTrophies.js";
-import {insertPsnEarnedTrophies} from "./queries/insertPsnEarnedTrophies.js";
+import {insertPsnTitles} from "./queries/psn/insertPsnTitles.js";
+import {upsertPsnUserPlayedTitles} from "./queries/psn/upsertPsnUserPlayedTitles.js";
+import {insertPsnTrophySets} from "./queries/psn/insertPsnTrophySets.js";
+import {insertPsnTitlesTrophySet} from "./queries/psn/insertPsnTitlesTrophySet.js";
+import {insertPsnTrophies} from "./queries/psn/insertPsnTrophies.js";
+import {insertPsnEarnedTrophies} from "./queries/psn/insertPsnEarnedTrophies.js";
 import {Pool, PoolClient} from "pg";
-import {upsertPsnUserProfiles} from "./queries/upsertPsnUserProfiles.js";
+import {upsertPsnUserProfiles} from "./queries/psn/upsertPsnUserProfiles.js";
 import {PsnDataWrapper} from "../psn/models/wrappers/psnDataWrapper.js";
 import {InsertQueryResult} from "./models/insertQueryResult.js";
 

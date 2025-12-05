@@ -1,7 +1,7 @@
 import {PoolClient} from "pg";
-import {PsnTrophy} from "../../psn/models/psnTrophy.js";
-import {buildPostgresInsertPlaceholders} from "../utils/buildPostgresInsertPlaceholders.js";
-import {InsertQueryResult} from "../models/insertQueryResult.js";
+import {PsnTrophy} from "../../../psn/models/psnTrophy.js";
+import {buildPostgresInsertPlaceholders} from "../../utils/buildPostgresInsertPlaceholders.js";
+import {InsertQueryResult} from "../../models/insertQueryResult.js";
 
 
 /**

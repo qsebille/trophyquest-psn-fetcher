@@ -1,4 +1,4 @@
-export type PsnTrophy = {
+export interface PsnTrophy {
     id: string;
     trophySetId: string;
     rank: number;

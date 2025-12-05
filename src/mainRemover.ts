@@ -7,7 +7,14 @@ import {fetchPsnUser} from "./psn/fetchers/fetchPsnUser.js";
 import {deleteUserProfile} from "./postgres/deleteUserProfile.js";
 
 
-async function main() {
+/**
+ * Executes the primary workflow for removing a PSN user profile.
+ * This includes fetching authentication tokens, retrieving the user profile,
+ * and deleting the user data from a database. Logs the processing time and status.
+ *
+ * @return {Promise<void>} A promise that resolves when the workflow is complete.
+ */
+async function main(): Promise<void> {
     const startTime = Date.now();
     console.info("START PSN User remover")
 

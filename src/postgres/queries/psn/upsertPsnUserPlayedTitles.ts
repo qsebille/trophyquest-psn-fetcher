@@ -1,7 +1,7 @@
 import {PoolClient} from "pg";
-import {buildPostgresInsertPlaceholders} from "../utils/buildPostgresInsertPlaceholders.js";
-import {PsnUserPlayedTitle} from "../../psn/models/psnUserPlayedTitle.js";
-import {InsertQueryResult} from "../models/insertQueryResult.js";
+import {buildPostgresInsertPlaceholders} from "../../utils/buildPostgresInsertPlaceholders.js";
+import {PsnPlayedTitle} from "../../../psn/models/psnPlayedTitle.js";
+import {InsertQueryResult} from "../../models/insertQueryResult.js";
 
 
 /**
@@ -10,12 +10,12 @@ import {InsertQueryResult} from "../models/insertQueryResult.js";
  * If it does not exist, it inserts a new record.
  *
  * @param {PoolClient} client - The database client used to execute the query.
- * @param {PsnUserPlayedTitle[]} playedTitles - An array of user played title objects, each containing `userId`, `titleId`, and `lastPlayedDateTime`.
+ * @param {PsnPlayedTitle[]} playedTitles - An array of user played title objects, each containing `userId`, `titleId`, and `lastPlayedDateTime`.
  * @return {Promise<InsertQueryResult>} A promise resolving to an object containing the number of rows inserted and ignored.
  */
 export async function upsertPsnUserPlayedTitles(
     client: PoolClient,
-    playedTitles: PsnUserPlayedTitle[]
+    playedTitles: PsnPlayedTitle[]
 ): Promise<InsertQueryResult> {
     if (playedTitles.length === 0) {
         console.info("No user titles to insert into postgres database.");

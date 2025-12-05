@@ -2,16 +2,18 @@ import {PsnUser} from "../psnUser.js";
 import {PsnTitle} from "../psnTitle.js";
 import {PsnTrophySet} from "../psnTrophySet.js";
 import {PsnTitleTrophySet} from "../psnTitleTrophySet.js";
-import {PsnUserPlayedTitle} from "../psnUserPlayedTitle.js";
+import {PsnPlayedTitle} from "../psnPlayedTitle.js";
 import {PsnTrophy} from "../psnTrophy.js";
 import {PsnEarnedTrophy} from "../psnEarnedTrophy.js";
+import {PsnPlayedTrophySet} from "../psnPlayedTrophySet.js";
 
-export type PsnDataWrapper = {
+export interface PsnDataWrapper {
     users: PsnUser[];
     titles: PsnTitle[];
     trophySets: PsnTrophySet[];
     titleTrophySets: PsnTitleTrophySet[];
-    playedTitles: PsnUserPlayedTitle[];
     trophies: PsnTrophy[];
+    playedTitles: PsnPlayedTitle[];
+    playedTrophySets: PsnPlayedTrophySet[];
     earnedTrophies: PsnEarnedTrophy[];
 }

@@ -1,4 +1,4 @@
-export type PsnTitle = {
+export interface PsnTitle {
     id: string;
     name: string;
     imageUrl: string;

@@ -1,4 +1,4 @@
-export type PsnTrophySet = {
+export interface PsnTrophySet {
     id: string;
     name: string;
     iconUrl: string;

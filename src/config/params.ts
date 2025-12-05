@@ -1,4 +1,4 @@
-export type Params = {
+export interface Params {
     npsso: string;
     profileName: string | undefined;
 }

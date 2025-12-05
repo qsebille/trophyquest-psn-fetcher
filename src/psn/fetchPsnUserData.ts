@@ -2,7 +2,7 @@ import {PsnUser} from "./models/psnUser.js";
 import {PsnTitle} from "./models/psnTitle.js";
 import {PsnTrophySet} from "./models/psnTrophySet.js";
 import {PsnTitleTrophySet} from "./models/psnTitleTrophySet.js";
-import {PsnUserPlayedTitle} from "./models/psnUserPlayedTitle.js";
+import {PsnPlayedTitle} from "./models/psnPlayedTitle.js";
 import {fetchPsnTitles} from "./fetchers/fetchPsnTitles.js";
 import {fetchPsnTrophySets} from "./fetchers/fetchPsnTrophySets.js";
 import {fetchPsnTitlesTrophySet} from "./fetchers/fetchPsnTitlesTrophySet.js";
@@ -12,6 +12,8 @@ import {PsnAuthTokens} from "../auth/psnAuthTokens.js";
 import {PsnDataWrapper} from "./models/wrappers/psnDataWrapper.js";
 import {fetchPsnUser} from "./fetchers/fetchPsnUser.js";
 import {Params} from "../config/params.js";
+import {PsnPlayedTrophySet} from "./models/psnPlayedTrophySet.js";
+import {buildPsnPlayedTrophySet} from "./builders/buildPsnPlayedTrophySet.js";
 
 export async function fetchPsnUserData(
     psnAuthTokens: PsnAuthTokens,
@@ -23,11 +25,12 @@ export async function fetchPsnUserData(
 
     // Fetch titles and trophy sets for a user
     const titles: PsnTitle[] = await fetchPsnTitles(psnAuthTokens, accountId);
-    const playedTitles: PsnUserPlayedTitle[] = titles.map(t => {
+    const playedTitles: PsnPlayedTitle[] = titles.map(t => {
         return {userId: accountId, titleId: t.id, lastPlayedDateTime: t.lastPlayedDateTime};
     });
     console.info(`Found ${titles.length} titles`);
     const trophySets: PsnTrophySet[] = await fetchPsnTrophySets(psnAuthTokens, accountId);
+    const playedTrophySets: PsnPlayedTrophySet[] = buildPsnPlayedTrophySet(psnUser, trophySets);
     console.info(`Found ${trophySets.length} trophy sets`);
     const titleTrophySets: PsnTitleTrophySet[] = await fetchPsnTitlesTrophySet(titles, trophySets, psnAuthTokens, accountId);
     console.info(`Found ${titleTrophySets.length} titles / trophy sets links`);
@@ -40,10 +43,11 @@ export async function fetchPsnUserData(
     return {
         users: [psnUser],
         titles: titles,
-        playedTitles: playedTitles,
         trophySets: trophySets,
         titleTrophySets: titleTrophySets,
         trophies: trophyResponse.trophies,
+        playedTitles: playedTitles,
+        playedTrophySets: playedTrophySets,
         earnedTrophies: trophyResponse.earnedTrophies,
     };
 }

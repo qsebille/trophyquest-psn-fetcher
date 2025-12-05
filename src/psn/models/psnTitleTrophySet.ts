@@ -1,4 +1,4 @@
-export type PsnTitleTrophySet = {
+export interface PsnTitleTrophySet {
     titleId: string;
     trophySetId: string;
 }

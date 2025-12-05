@@ -1,7 +1,7 @@
-export type PsnAuthTokens = {
+export interface PsnAuthTokens {
     accessToken: string;
     refreshToken: string;
-};
+}
 
 /**
  * Retrieves PlayStation Network (PSN) authentication tokens using an NPSSO token.
