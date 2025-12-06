@@ -76,8 +76,10 @@ export async function refreshPsnData(
 
         // Fetch trophies
         const trophyResponse: PsnTrophyResponse = await fetchPsnUserTrophies(trophySetsToUpdate, psnAuthTokens, accountId);
-        const trophiesToAdd: PsnTrophy[] = trophyResponse.trophies;
-        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${trophiesToAdd.length} trophies to update`);
+        const trophies: PsnTrophy[] = trophyResponse.trophies;
+        const trophiesToAdd: PsnTrophy[] = trophies.filter(trophy => !trophyIds.has(trophy.id));
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${trophies.length} trophies`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${trophiesToAdd.length} trophies to add`);
 
         // Player-related data
         const playedTitlesToUpdate: PsnPlayedTitle[] = titlesToUpdate.map(t => {
