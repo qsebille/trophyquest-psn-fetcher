@@ -21,24 +21,25 @@ export async function fetchPsnUserData(
 ): Promise<PsnDataWrapper> {
     const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, params.profileName);
     const accountId: string = psnUser.id;
-    console.info(`Fetched user ${psnUser.profileName} (${accountId}) from PSN API`);
+    console.info(`[PSN-FETCHER] Fetched user ${psnUser.profileName} (${accountId}) from PSN API`);
 
     // Fetch titles and trophy sets for a user
     const titles: PsnTitle[] = await fetchPsnTitles(psnAuthTokens, accountId);
     const playedTitles: PsnPlayedTitle[] = titles.map(t => {
         return {userId: accountId, titleId: t.id, lastPlayedDateTime: t.lastPlayedDateTime};
     });
-    console.info(`Found ${titles.length} titles`);
+    console.info(`[PSN-FETCHER] Found ${titles.length} titles`);
     const trophySets: PsnTrophySet[] = await fetchPsnTrophySets(psnAuthTokens, accountId);
     const playedTrophySets: PsnPlayedTrophySet[] = buildPsnPlayedTrophySet(psnUser, trophySets);
-    console.info(`Found ${trophySets.length} trophy sets`);
+    console.info(`[PSN-FETCHER] Found ${trophySets.length} trophy sets`);
     const titleTrophySets: PsnTitleTrophySet[] = await fetchPsnTitlesTrophySet(titles, trophySets, psnAuthTokens, accountId);
-    console.info(`Found ${titleTrophySets.length} titles / trophy sets links`);
+    console.info(`[PSN-FETCHER] Found ${titleTrophySets.length} titles / trophy sets links`);
 
     // Fetch trophies for each title
     const trophyResponse: PsnTrophyResponse = await fetchPsnUserTrophies(trophySets, psnAuthTokens, accountId);
-    console.info(`Found ${trophyResponse.trophies.length} trophies`);
-    console.info(`Found ${trophyResponse.earnedTrophies.length} earned trophies`);
+    console.info(`[PSN-FETCHER] Found ${trophyResponse.trophies.length} trophies`);
+    console.info(`[PSN-FETCHER] Found ${trophyResponse.earnedTrophies.length} earned trophies`);
+    console.info("\n");
 
     return {
         users: [psnUser],

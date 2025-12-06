@@ -27,82 +27,98 @@ import {PsnUserProfilePostgres} from "../postgres/models/psnUserProfilePostgres.
  */
 export async function refreshPsnData(
     psnUsersPostgres: PsnUserProfilePostgres[],
-    psnAuthTokens: PsnAuthTokens
+    psnAuthTokens: PsnAuthTokens,
 ): Promise<PsnDataWrapper> {
-    let psnUsers: PsnUser[] = [];
-    let allTitlesToUpdate: PsnTitle[] = [];
-    let allTrophySetsToUpdate: PsnTrophySet[] = [];
-    let allTitleTrophySets: PsnTitleTrophySet[] = [];
-    let allPlayedTitles: PsnPlayedTitle[] = [];
-    let allPlayedTrophySets: PsnPlayedTrophySet[] = [];
-    let allTrophies: PsnTrophy[] = [];
-    let allEarnedTrophies: PsnEarnedTrophy[] = [];
+    const result: PsnDataWrapper = {
+        users: [],
+        titles: [],
+        trophySets: [],
+        titleTrophySets: [],
+        trophies: [],
+        playedTitles: [],
+        playedTrophySets: [],
+        earnedTrophies: [],
+    }
+
+    const titleIds = new Set<string>();
+    const trophySetIds = new Set<string>();
+    const trophyIds = new Set<string>();
     for (const postgresUser of psnUsersPostgres) {
-        const userLastUpdate = new Date(postgresUser.updated_at);
+        // User info
         const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, postgresUser.name);
         const accountId: string = psnUser.id;
-        console.info(`Fetched user ${postgresUser.name} (${accountId}) from postgres database`);
-        console.info(`Last update: ${userLastUpdate.toISOString()}`);
+        const userLastUpdate = new Date(postgresUser.updated_at);
+        console.info(`[PSN-REFRESH] Fetched user ${postgresUser.name} (${accountId}) from postgres database`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Fetching data from: ${userLastUpdate.toISOString()}`);
 
         // Fetch titles
-        const allUserTitles: PsnTitle[] = await fetchPsnTitles(psnAuthTokens, accountId);
-        const titlesToRefresh: PsnTitle[] = allUserTitles.filter(t => new Date(t.lastPlayedDateTime) > userLastUpdate);
-        console.info(`Found ${titlesToRefresh.length} titles to update, among ${allUserTitles.length} total titles`);
+        const titles: PsnTitle[] = await fetchPsnTitles(psnAuthTokens, accountId);
+        const titlesToUpdate: PsnTitle[] = titles.filter(title => new Date(title.lastPlayedDateTime) > userLastUpdate);
+        if (titlesToUpdate.length === 0) {
+            console.info(`[PSN-REFRESH::${postgresUser.name}] No titles played since last update // Skipping user`);
+            result.users.push(psnUser);
+            continue;
+        }
+        const titlesToAdd: PsnTitle[] = titlesToUpdate.filter(title => !titleIds.has(title.id));
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${titles.length} titles`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${titlesToUpdate.length} titles played since last update`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Keeping ${titlesToAdd.length} titles to add to database`);
 
         // Fetch trophy sets
         const trophySets: PsnTrophySet[] = await fetchPsnTrophySets(psnAuthTokens, accountId);
-        const trophySetsToRefresh: PsnTrophySet[] = trophySets.filter(t => new Date(t.lastUpdatedDateTime) > userLastUpdate);
-        console.info(`Found ${trophySetsToRefresh.length} trophy sets to update, among ${trophySets.length} total trophy sets`);
-        const titleTrophySets: PsnTitleTrophySet[] = await fetchPsnTitlesTrophySet(titlesToRefresh, trophySetsToRefresh, psnAuthTokens, accountId);
-        console.info(`Found ${titleTrophySets.length} titles / trophy sets links`);
-        const playedTrophySets: PsnPlayedTrophySet[] = buildPsnPlayedTrophySet(psnUser, trophySetsToRefresh);
+        const trophySetsToUpdate: PsnTrophySet[] = trophySets.filter(trophySet => new Date(trophySet.lastUpdatedDateTime) > userLastUpdate);
+        const trophySetsToAdd: PsnTrophySet[] = trophySetsToUpdate.filter(trophySet => !trophySetIds.has(trophySet.id));
+        const titleTrophySetsToAdd: PsnTitleTrophySet[] = await fetchPsnTitlesTrophySet(titlesToAdd, trophySetsToAdd, psnAuthTokens, accountId);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${trophySets.length} trophy sets for user`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${trophySetsToUpdate.length} trophy sets played since last update`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Keeping ${trophySetsToAdd.length} trophy sets to add to database`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${titleTrophySetsToAdd.length} titles / trophy sets links to add to database`);
 
-        // Fetch trophies for each title
-        const trophyResponse: PsnTrophyResponse = await fetchPsnUserTrophies(trophySetsToRefresh, psnAuthTokens, accountId);
-        console.info(`Found ${trophyResponse.trophies.length} trophies to update`);
-        console.info(`Found ${trophyResponse.earnedTrophies.length} earned trophies to update`);
+        // Fetch trophies
+        const trophyResponse: PsnTrophyResponse = await fetchPsnUserTrophies(trophySetsToUpdate, psnAuthTokens, accountId);
+        const trophies: PsnTrophy[] = trophyResponse.trophies;
+        const trophiesToAdd: PsnTrophy[] = trophies.filter(trophy => !trophyIds.has(trophy.id));
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${trophies.length} trophies`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${trophiesToAdd.length} trophies to add`);
 
-        // Filtering data to update
-        const playedTitlesToAdd: PsnPlayedTitle[] = titlesToRefresh.map(t => {
-            return {
-                userId: psnUser.id,
-                titleId: t.id,
-                lastPlayedDateTime: t.lastPlayedDateTime,
-            }
+        // Player-related data
+        const playedTitlesToUpdate: PsnPlayedTitle[] = titlesToUpdate.map(t => {
+            return {userId: psnUser.id, titleId: t.id, lastPlayedDateTime: t.lastPlayedDateTime}
         });
-        const titlesToUpdate: PsnTitle[] = titlesToRefresh.filter(t => !allUserTitles.some(ut => ut.id === t.id));
-        const trophySetsToUpdate: PsnTrophySet[] = trophySetsToRefresh.filter(t => !trophySets.some(ut => ut.id === t.id));
-        const trophiesToUpdate: PsnTrophy[] = trophyResponse.trophies.filter(t => !allTrophies.some(ut => ut.id === t.id));
-        const earnedTrophiesToUpdate: PsnEarnedTrophy[] = trophyResponse.earnedTrophies.filter(t => !allEarnedTrophies.some(ut => ut.trophyId === t.trophyId));
+        const playedTrophySets: PsnPlayedTrophySet[] = buildPsnPlayedTrophySet(psnUser, trophySetsToUpdate);
+        const earnedTrophies: PsnEarnedTrophy[] = trophyResponse.earnedTrophies;
+        const earnedTrophiesToAdd: PsnEarnedTrophy[] = earnedTrophies.filter(earnedTrophy => new Date(earnedTrophy.earnedDateTime) > userLastUpdate);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${playedTitlesToUpdate.length} played titles since last update`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${playedTrophySets.length} played trophy sets since last update`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${earnedTrophies.length} earned trophies`);
+        console.info(`[PSN-REFRESH::${postgresUser.name}] Found ${earnedTrophiesToAdd.length} earned trophies since last update to add`);
+
+        // Add data to sets to prevent duplicates between users
+        titlesToAdd.forEach(title => titleIds.add(title.id));
+        trophySetsToAdd.forEach(trophySet => trophySetIds.add(trophySet.id));
+        trophiesToAdd.forEach(trophy => trophyIds.add(trophy.id));
 
         // Add data to arrays for insertion into postgres
-        psnUsers = [...psnUsers, psnUser];
-        allTitlesToUpdate = [...allTitlesToUpdate, ...titlesToUpdate];
-        allTrophySetsToUpdate = [...allTrophySetsToUpdate, ...trophySetsToUpdate];
-        allTitleTrophySets = [...allTitleTrophySets, ...titleTrophySets];
-        allTrophies = [...allTrophies, ...trophiesToUpdate];
-        allPlayedTitles = [...allPlayedTitles, ...playedTitlesToAdd];
-        allPlayedTrophySets = [...allPlayedTrophySets, ...playedTrophySets];
-        allEarnedTrophies = [...allEarnedTrophies, ...earnedTrophiesToUpdate];
+        result.users.push(psnUser);
+        result.titles.push(...titlesToAdd);
+        result.trophySets.push(...trophySetsToAdd);
+        result.titleTrophySets.push(...titleTrophySetsToAdd);
+        result.trophies.push(...trophiesToAdd);
+        result.playedTitles.push(...playedTitlesToUpdate);
+        result.playedTrophySets.push(...playedTrophySets);
+        result.earnedTrophies.push(...earnedTrophiesToAdd);
+        console.info("\n");
     }
 
-    console.info(`Found ${psnUsers.length} users to update`);
-    console.info(`Found ${allTitlesToUpdate.length} titles to update`);
-    console.info(`Found ${allPlayedTitles.length} played titles to update`);
-    console.info(`Found ${allTrophySetsToUpdate.length} trophy sets to update`);
-    console.info(`Found ${allPlayedTrophySets.length} played trophy sets to update`);
-    console.info(`Found ${allTitleTrophySets.length} titles / trophy sets links to update`);
-    console.info(`Found ${allTrophies.length} trophies to update`);
-    console.info(`Found ${allEarnedTrophies.length} earned trophies to update`);
+    console.info(`[PSN-REFRESH] Found ${result.users.length} users to update`);
+    console.info(`[PSN-REFRESH] Found ${result.titles.length} titles to update`);
+    console.info(`[PSN-REFRESH] Found ${result.trophySets.length} played titles to update`);
+    console.info(`[PSN-REFRESH] Found ${result.titleTrophySets.length} trophy sets to update`);
+    console.info(`[PSN-REFRESH] Found ${result.trophies.length} played trophy sets to update`);
+    console.info(`[PSN-REFRESH] Found ${result.playedTitles.length} titles / trophy sets links to update`);
+    console.info(`[PSN-REFRESH] Found ${result.playedTrophySets.length} trophies to update`);
+    console.info(`[PSN-REFRESH] Found ${result.earnedTrophies.length} earned trophies to update`);
+    console.info("\n");
 
-    return {
-        users: psnUsers,
-        titles: allTitlesToUpdate,
-        trophySets: allTrophySetsToUpdate,
-        titleTrophySets: allTitleTrophySets,
-        trophies: allTrophies,
-        playedTitles: allPlayedTitles,
-        playedTrophySets: allPlayedTrophySets,
-        earnedTrophies: allEarnedTrophies,
-    };
+    return result
 }
