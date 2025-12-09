@@ -3,10 +3,6 @@ name: Deploy psn-fetcher Lambda
 on:
   push:
     branches: [ main, migration-aws ]
-    paths:
-      - "src/**"
-      - "package.json"
-      - "tsconfig.json"
   workflow_dispatch:
 
 jobs:
