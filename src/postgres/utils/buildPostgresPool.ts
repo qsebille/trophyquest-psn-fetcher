@@ -8,6 +8,6 @@ export function buildPostgresPool(): Pool {
         database: getMandatoryParam("PG_DATABASE"),
         user: getMandatoryParam("PG_USER"),
         password: getMandatoryParam("PG_PASSWORD"),
-        ssl: process.env.PGSSL === "true" ? {rejectUnauthorized: false} : undefined,
+        ssl: process.env.PG_SSL === "true" ? {rejectUnauthorized: false} : undefined,
     });
 }
