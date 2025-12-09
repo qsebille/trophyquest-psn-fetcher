@@ -1,4 +1,3 @@
-import {getParams, Params} from "./config/params.js";
 import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
 import {getPsnAuthTokens, PsnAuthTokens} from "./auth/psnAuthTokens.js";
@@ -10,6 +9,7 @@ import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
 import computeAppData from "./app/computeAppData.js";
 import {insertAppData} from "./postgres/insertAppData.js";
 import {PsnUserProfilePostgres} from "./postgres/models/psnUserProfilePostgres.js";
+import {getMandatoryParam} from "./config/getMandatoryParam.js";
 
 
 /**
@@ -19,29 +19,39 @@ import {PsnUserProfilePostgres} from "./postgres/models/psnUserProfilePostgres.j
  *
  * @return {Promise<void>} A Promise that resolves when the entire update process completes, including database operations, or rejects if an error occurs.
  */
-async function main(): Promise<void> {
+async function runRefresher(): Promise<void> {
     const startTime = Date.now();
-    console.info("START PSN Refresher");
+    console.info("[PSN-REFRESHER] Start");
 
-    const params: Params = getParams();
+    const npsso: string = getMandatoryParam('NPSSO');
     const pool: Pool = buildPostgresPool();
 
     try {
-        const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(params.npsso);
+        const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(npsso);
         const psnUsersPostgres: PsnUserProfilePostgres[] = await getAllPsnUsers(pool);
         const psnData: PsnDataWrapper = await refreshPsnData(psnUsersPostgres, psnAuthTokens);
-        await insertPsnData(pool, psnData);
         const appData: AppDataWrapper = computeAppData(psnData);
+        await insertPsnData(pool, psnData);
         await insertAppData(pool, appData);
+        console.info("[PSN-REFRESHER] Success");
     } finally {
         const durationSeconds = (Date.now() - startTime) / 1000;
-        console.info("SUCCESS");
         console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);
         await pool.end();
+        process.exit(0);
     }
 }
 
-main().catch((e) => {
-    console.error(e);
-    process.exitCode = 1;
-});
+export const handler = async (
+    _event: any = {},
+    _context: any = {}
+): Promise<void> => {
+    await runRefresher();
+};
+
+if (!process.env.LAMBDA_TASK_ROOT) {
+    runRefresher().catch((e) => {
+        console.error(e);
+        process.exitCode = 1;
+    });
+}

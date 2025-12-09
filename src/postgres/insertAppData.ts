@@ -33,7 +33,6 @@ export async function insertAppData(
         console.info(`[POSTGRES-APP] Inserted ${playedTrophyCollectionResponse.rowsInserted} played trophy collections into postgres database ${playedTrophyCollectionResponse.rowsIgnored > 0 ? `(${playedTrophyCollectionResponse.rowsIgnored} ignored)` : ''}`);
         console.info(`[POSTGRES-APP] Inserted ${earnedTrophyResponse.rowsInserted} earned trophies into postgres database ${earnedTrophyResponse.rowsIgnored > 0 ? `(${earnedTrophyResponse.rowsIgnored} ignored)` : ''}`);
         console.info('[POSTGRES-APP] Success');
-        console.info('\n');
     } catch (err) {
         await client.query('ROLLBACK');
         throw err;

@@ -34,6 +34,6 @@ export async function fetchPsnEarnedTrophiesForSet(
                 trophyId: `${psnTrophySet.id}-${trophy.trophyId}`,
                 userId: accountId,
                 earnedDateTime: trophy.earnedDateTime,
-            }
+            } as PsnEarnedTrophy
         });
 }

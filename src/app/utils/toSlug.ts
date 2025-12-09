@@ -1,6 +1,6 @@
-export function toSlug(input: string | null) {
+export function toSlug(input: string | null): string {
     if (input == null) {
-        return null;
+        return "";
     }
 
     return input

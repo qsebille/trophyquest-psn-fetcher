@@ -10,20 +10,11 @@ import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
  */
 export async function fetchPsnUser(
     psnAuthTokens: PsnAuthTokens,
-    profileName: string | undefined
+    profileName: string
 ): Promise<PsnUser> {
-    // @ts-ignore
     const {getProfileFromUserName} = await import("psn-api");
 
-    let usedProfileName: string
-    if (!profileName) {
-        console.info("No PROFILE_NAME provided, using 'me' as account");
-        usedProfileName = "me";
-    } else {
-        usedProfileName = profileName.toString();
-    }
-
-    const userPsn = await getProfileFromUserName(psnAuthTokens, usedProfileName);
+    const userPsn = await getProfileFromUserName(psnAuthTokens, profileName);
     return {
         id: userPsn.profile.accountId,
         profileName: userPsn.profile.onlineId,

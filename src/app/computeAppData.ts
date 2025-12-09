@@ -33,7 +33,6 @@ function computeAppData(psnData: PsnDataWrapper): AppDataWrapper {
     console.info(`[APP-DATA-BUILDER] Computed ${appTrophies.length} app trophies.`);
     console.info(`[APP-DATA-BUILDER] Computed ${appEarnedTrophies.length} app earned trophies.`);
     console.info(`[APP-DATA-BUILDER] App data computed successfully.`);
-    console.info("\n");
 
     return {
         players: appPlayers,

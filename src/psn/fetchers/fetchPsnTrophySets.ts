@@ -24,7 +24,7 @@ export async function fetchPsnTrophySets(
         const options = {limit: PSN_TITLE_BATCH_SIZE, offset};
         const userTitlesResponse = await getUserTitles(psnAuthTokens, accountId, options);
         // @ts-ignore
-        const pageUserTitles = userTitlesResponse.trophyTitles.map(trophyTitle => {
+        const userSets = userTitlesResponse.trophyTitles.map(trophyTitle => {
             const platform: string = normalizePsnPlatform(trophyTitle.trophyTitlePlatform)
             return {
                 id: trophyTitle.npCommunicationId,
@@ -35,9 +35,9 @@ export async function fetchPsnTrophySets(
                 version: trophyTitle.trophySetVersion,
                 lastUpdatedDateTime: trophyTitle.lastUpdatedDateTime,
                 platform,
-            }
+            } as PsnTrophySet;
         });
-        result.push(...pageUserTitles);
+        result.push(...userSets);
         if (userTitlesResponse.nextOffset === undefined) break;
         offset = userTitlesResponse.nextOffset;
     }

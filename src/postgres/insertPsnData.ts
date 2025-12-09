@@ -45,7 +45,6 @@ export async function insertPsnData(
         console.info(`[POSTGRES-PSN] Inserted ${trophyResponse.rowsInserted} trophies into postgres database ${trophyResponse.rowsIgnored > 0 ? `(${trophyResponse.rowsIgnored} ignored)` : ''}`);
         console.info(`[POSTGRES-PSN] Inserted ${earnedTrophyResponse.rowsInserted} earned trophies into postgres database ${earnedTrophyResponse.rowsIgnored > 0 ? `(${earnedTrophyResponse.rowsIgnored} ignored)` : ''}`);
         console.info('[POSTGRES-PSN] Success');
-        console.info('\n');
     } catch (err) {
         await client.query('ROLLBACK');
         throw err;

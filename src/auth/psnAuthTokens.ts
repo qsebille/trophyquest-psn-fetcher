@@ -4,6 +4,7 @@ export interface PsnAuthTokens {
 }
 
 /**
+ *
  * Retrieves PlayStation Network (PSN) authentication tokens using an NPSSO token.
  *
  * @param {string} npsso - The NPSSO token used to authenticate and retrieve the access code and tokens.

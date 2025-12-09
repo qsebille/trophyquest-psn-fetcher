@@ -22,7 +22,6 @@ export async function fetchPsnTrophiesForSet(
     }
     const titleTrophies = await getTitleTrophies(psnAuthTokens, psnTrophySet.id, "all", options);
 
-    //@ts-ignore
     return titleTrophies.trophies.map(trophy => {
         return {
             id: `${psnTrophySet.id}-${trophy.trophyId}`,
@@ -34,6 +33,6 @@ export async function fetchPsnTrophiesForSet(
             trophyType: trophy.trophyType,
             iconUrl: trophy.trophyIconUrl,
             groupId: trophy.trophyGroupId,
-        }
+        } as PsnTrophy;
     });
 }

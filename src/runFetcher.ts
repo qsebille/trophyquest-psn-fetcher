@@ -1,4 +1,3 @@
-import {getParams, Params} from "./config/params.js";
 import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
 import {getPsnAuthTokens, PsnAuthTokens} from "./auth/psnAuthTokens.js";
@@ -8,7 +7,7 @@ import {insertPsnData} from "./postgres/insertPsnData.js";
 import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
 import computeAppData from "./app/computeAppData.js";
 import {insertAppData} from "./postgres/insertAppData.js";
-
+import {getMandatoryParam} from "./config/getMandatoryParam.js";
 
 /**
  * Main method that coordinates the fetching, processing, and storing of PlayStation Network (PSN) user data, including titles, trophy sets, trophies, and earned trophies.
@@ -16,28 +15,43 @@ import {insertAppData} from "./postgres/insertAppData.js";
  *
  * @return {Promise<void>} A promise that resolves when the entire process is completed successfully, or rejects if any errors occur during execution.
  */
-async function main(): Promise<void> {
+async function runFetcher(): Promise<void> {
     const startTime = Date.now();
-    console.info("START PSN Fetcher");
+    console.info("[PSN-FETCHER] Start");
 
-    const params: Params = getParams();
+    const npsso: string = getMandatoryParam('NPSSO');
+    const profileName: string = getMandatoryParam('PROFILE_NAME');
     const pool: Pool = buildPostgresPool();
+    console.info(`[PSN-FETCHER] Fetching user data for profile ${profileName}`);
 
     try {
-        const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(params.npsso);
-        const psnData: PsnDataWrapper = await fetchPsnUserData(psnAuthTokens, params);
-        await insertPsnData(pool, psnData);
+        const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(npsso);
+        const psnData: PsnDataWrapper = await fetchPsnUserData(psnAuthTokens, profileName);
         const appData: AppDataWrapper = computeAppData(psnData);
+        await insertPsnData(pool, psnData);
         await insertAppData(pool, appData);
+        console.info("[PSN-FETCHER] Success");
     } finally {
-        console.info("SUCCESS");
         const durationSeconds = (Date.now() - startTime) / 1000;
-        console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);
+        console.info(`[PSN-FETCHER] Total processing time: ${durationSeconds.toFixed(2)} s`);
         await pool.end();
     }
 }
 
-main().catch((e) => {
-    console.error(e);
-    process.exitCode = 1;
-});
+export const handler = async (
+    event: any = {},
+    _context: any = {}
+): Promise<void> => {
+    if (event.profileName) {
+        process.env.PROFILE_NAME = event.profileName;
+    }
+
+    await runFetcher();
+};
+
+if (!process.env.LAMBDA_TASK_ROOT) {
+    runFetcher().catch((e) => {
+        console.error(e);
+        process.exitCode = 1;
+    });
+}

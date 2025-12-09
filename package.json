@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "start-fetcher": "tsx src/mainFetcher.ts",
-    "start-refresher": "tsx src/mainRefresher.ts",
-    "start-remover": "tsx src/mainRemover.ts",
+    "build": "tsc",
+    "start-fetcher": "tsx src/runFetcher.ts",
+    "start-refresher": "tsx src/runRefresher.ts",
+    "start-remover": "tsx src/runRemover.ts",
+    "start-image-uploader": "tsx src/runImageUploader.ts",
     "test": "tsx --test"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.947.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "morgan": "^1.10.0",

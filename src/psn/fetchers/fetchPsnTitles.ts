@@ -22,7 +22,7 @@ export async function fetchPsnTitles(
     while (true) {
         const options = {limit: TITLE_SEARCH_LIMIT, offset}
         const userPlayedGamesResponse = await getUserPlayedGames(psnAuthTokens, accountId, options);
-        const pagePsnTitles: PsnTitle[] = userPlayedGamesResponse.titles
+        const psnTitles: PsnTitle[] = userPlayedGamesResponse.titles
             // @ts-ignore
             .filter(t => t.category === 'ps4_game' || t.category === 'ps5_native_game' || t.category === 'unknown')
             // @ts-ignore
@@ -35,7 +35,7 @@ export async function fetchPsnTitles(
                     lastPlayedDateTime: title.lastPlayedDateTime,
                 }
             });
-        result.push(...pagePsnTitles);
+        result.push(...psnTitles);
 
         if (!userPlayedGamesResponse.nextOffset || userPlayedGamesResponse.nextOffset > userPlayedGamesResponse.totalItemCount) break;
         offset = userPlayedGamesResponse.nextOffset;
