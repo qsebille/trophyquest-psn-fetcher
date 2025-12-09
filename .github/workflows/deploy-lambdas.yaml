@@ -1,4 +1,4 @@
-name: Deploy psn-fetcher Lambda
+name: Deploy Lambda
 
 on:
   push:
@@ -37,5 +37,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to Lambda
-        run: aws lambda update-function-code --function-name psn-fetcher --zip-file fileb://psn-fetcher.zip
+      - name: Deploy trophyquest-psn-fetcher to Lambda
+        run: aws lambda update-function-code --function-name trophyquest-psn-fetcher --zip-file fileb://psn-fetcher.zip
+
+      - name: Deploy trophyquest-psn-refresher to Lambda
+        run: aws lambda update-function-code --function-name trophyquest-psn-refresher --zip-file fileb://psn-fetcher.zip
+
+      - name: Deploy trophyquest-image-uploader to Lambda
+        run: aws lambda update-function-code --function-name trophyquest-image-uploader --zip-file fileb://psn-fetcher.zip
