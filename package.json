@@ -1,6 +1,6 @@
 {
-  "name": "psn-fetcher",
-  "version": "0.1.0",
+  "name": "trophyquest-psn-fetcher",
+  "version": "1.2.0",
   "type": "module",
   "scripts": {
     "build": "tsc",

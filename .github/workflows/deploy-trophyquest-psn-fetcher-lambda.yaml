@@ -1,0 +1,57 @@
+name: Deploy trophyquest-psn-fetcher Lambda
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Prune dev deps
+        run: npm prune --production
+
+      - name: Zip artifact
+        run: zip -r psn-fetcher.zip dist node_modules package.json
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Read app version
+        id: app_version
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+
+      - name: Deploy trophyquest-psn-fetcher to Lambda
+        run: aws lambda update-function-code --function-name trophyquest-psn-fetcher --zip-file fileb://psn-fetcher.zip
+
+      - name: Publish version & update alias (psn-fetcher)
+        run: |
+          VERSION=$(aws lambda publish-version \
+            --function-name psn-fetcher \
+            --description "TrophyQuest Node v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
+            --query 'Version' --output text)
+          
+          aws lambda update-alias \
+            --function-name psn-fetcher \
+            --name prod \
+            --function-version $VERSION
