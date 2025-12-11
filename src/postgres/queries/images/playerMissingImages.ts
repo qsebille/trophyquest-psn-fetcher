@@ -12,7 +12,7 @@ export async function getPlayerMissingAwsImages(
     pool: Pool,
     limit: number
 ): Promise<PlayerImageData[]> {
-    const queryResult = await pool.query(`SELECT id, image_url, aws_avatar_url
+    const queryResult = await pool.query(`SELECT id, avatar_url, aws_avatar_url
                                           FROM app.player
                                           WHERE aws_avatar_url IS NULL
                                               LIMIT ${limit}`);
