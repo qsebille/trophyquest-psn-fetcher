@@ -31,21 +31,21 @@ export async function updatePlayerMissingAwsImages(
 
     const values: string[] = [];
     const placeholders: string = images
-        .filter(game => game.aws_avatar_url !== null)
+        .filter(player => player.aws_avatar_url !== null)
         .map((
-            game,
+            player,
             idx
         ) => {
-            const currentValues = [game.id, game.aws_avatar_url ?? ''];
+            const currentValues = [player.id, player.aws_avatar_url ?? ''];
             values.push(...currentValues);
             return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');
 
     const update = await pool.query(
         `
-            UPDATE app.game AS g
-            SET aws_avatar_url = v.aws_avatar_url FROM ( VALUES ${placeholders} ) AS v(id, aws_image_url)
-            WHERE g.id = v.id::uuid
+            UPDATE app.player AS p
+            SET aws_avatar_url = v.aws_avatar_url FROM ( VALUES ${placeholders} ) AS v(id, aws_avatar_url)
+            WHERE p.id = v.id::uuid
         `,
         values
     );
