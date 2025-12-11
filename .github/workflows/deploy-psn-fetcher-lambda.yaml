@@ -46,14 +46,14 @@ jobs:
       - name: Deploy trophyquest-psn-fetcher to Lambda
         run: aws lambda update-function-code --function-name trophyquest-psn-fetcher --zip-file fileb://psn-fetcher.zip
 
-      - name: Publish version & update alias (psn-fetcher)
+      - name: Publish version & update alias (trophyquest-psn-fetcher)
         run: |
           VERSION=$(aws lambda publish-version \
-            --function-name psn-fetcher \
-            --description "TrophyQuest Node v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
+            --function-name trophyquest-psn-fetcher \
+            --description "TrophyQuest PSN Fetcher v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
             --query 'Version' --output text)
           
           aws lambda update-alias \
-            --function-name psn-fetcher \
+            --function-name trophyquest-psn-fetcher \
             --name prod \
             --function-version $VERSION

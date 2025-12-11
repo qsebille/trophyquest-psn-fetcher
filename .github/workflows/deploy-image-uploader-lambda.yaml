@@ -46,14 +46,14 @@ jobs:
       - name: Deploy trophyquest-image-uploader to Lambda
         run: aws lambda update-function-code --function-name trophyquest-image-uploader --zip-file fileb://psn-fetcher.zip
 
-      - name: Publish version & update alias (trophyquest-psn-fetcher)
+      - name: Publish version & update alias (trophyquest-image-uploader)
         run: |
           VERSION=$(aws lambda publish-version \
-            --function-name psn-fetcher \
+            --function-name trophyquest-image-uploader \
             --description "TrophyQuest Node v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
             --query 'Version' --output text)
           
           aws lambda update-alias \
-            --function-name psn-fetcher \
+            --function-name trophyquest-image-uploader \
             --name prod \
             --function-version $VERSION
