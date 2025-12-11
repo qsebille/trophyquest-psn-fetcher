@@ -1,4 +1,4 @@
-name: Deploy trophyquest-psn-refresher Lambda
+name: Deploy psn-refresher Lambda
 
 on:
   push:
@@ -37,20 +37,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Read app version
-        id: app_version
+      - name: Update code (psn-refresher)
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          aws lambda update-function-code \
+            --function-name trophyquest-psn-refresher \
+            --zip-file fileb://psn-fetcher.zip
 
-      - name: Deploy trophyquest-psn-refresher to Lambda
-        run: aws lambda update-function-code --function-name trophyquest-psn-refresher --zip-file fileb://psn-fetcher.zip
+      - name: Wait for update to finish (psn-refresher)
+        run: |
+          aws lambda wait function-updated \
+            --function-name trophyquest-psn-refresher
 
-      - name: Publish version & update alias (trophyquest-psn-refresher)
+      - name: Publish version & update alias (psn-refresher)
         run: |
           VERSION=$(aws lambda publish-version \
             --function-name trophyquest-psn-refresher \
-            --description "TrophyQuest PSN Refresher v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
+            --description "TrophyQuest Refresher v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
             --query 'Version' --output text)
           
           aws lambda update-alias \

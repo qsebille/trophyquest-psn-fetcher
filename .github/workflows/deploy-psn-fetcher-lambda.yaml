@@ -1,4 +1,4 @@
-name: Deploy trophyquest-psn-fetcher Lambda
+name: Deploy psn-fetcher Lambda
 
 on:
   push:
@@ -43,14 +43,22 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Deploy trophyquest-psn-fetcher to Lambda
-        run: aws lambda update-function-code --function-name trophyquest-psn-fetcher --zip-file fileb://psn-fetcher.zip
+      - name: Update code (psn-fetcher)
+        run: |
+          aws lambda update-function-code \
+            --function-name trophyquest-psn-fetcher \
+            --zip-file fileb://psn-fetcher.zip
 
-      - name: Publish version & update alias (trophyquest-psn-fetcher)
+      - name: Wait for update to finish (psn-fetcher)
+        run: |
+          aws lambda wait function-updated \
+            --function-name trophyquest-psn-fetcher
+
+      - name: Publish version & update alias (psn-fetcher)
         run: |
           VERSION=$(aws lambda publish-version \
             --function-name trophyquest-psn-fetcher \
-            --description "TrophyQuest PSN Fetcher v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
+            --description "TrophyQuest Fetcher v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
             --query 'Version' --output text)
           
           aws lambda update-alias \

@@ -1,4 +1,4 @@
-name: Deploy trophyquest-image-uploader Lambda
+name: Deploy image-uploader Lambda
 
 on:
   push:
@@ -37,20 +37,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Read app version
-        id: app_version
+      - name: Update code (image-uploader)
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          aws lambda update-function-code \
+            --function-name trophyquest-image-uploader \
+            --zip-file fileb://psn-fetcher.zip
 
-      - name: Deploy trophyquest-image-uploader to Lambda
-        run: aws lambda update-function-code --function-name trophyquest-image-uploader --zip-file fileb://psn-fetcher.zip
+      - name: Wait for update to finish (image-uploader)
+        run: |
+          aws lambda wait function-updated \
+            --function-name trophyquest-image-uploader
 
-      - name: Publish version & update alias (trophyquest-image-uploader)
+      - name: Publish version & update alias (image-uploader)
         run: |
           VERSION=$(aws lambda publish-version \
             --function-name trophyquest-image-uploader \
-            --description "TrophyQuest Node v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
+            --description "TrophyQuest Refresher v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
             --query 'Version' --output text)
           
           aws lambda update-alias \
