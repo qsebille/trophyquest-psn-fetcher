@@ -39,12 +39,14 @@ jobs:
 
       - name: Read app version
         id: app_version
-        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Deploy trophyquest-image-uploader to Lambda
         run: aws lambda update-function-code --function-name trophyquest-image-uploader --zip-file fileb://psn-fetcher.zip
 
-      - name: Publish version & update alias (psn-fetcher)
+      - name: Publish version & update alias (trophyquest-psn-fetcher)
         run: |
           VERSION=$(aws lambda publish-version \
             --function-name psn-fetcher \

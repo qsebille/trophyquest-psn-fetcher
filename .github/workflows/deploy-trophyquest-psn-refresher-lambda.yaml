@@ -39,7 +39,9 @@ jobs:
 
       - name: Read app version
         id: app_version
-        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Deploy trophyquest-psn-refresher to Lambda
         run: aws lambda update-function-code --function-name trophyquest-psn-refresher --zip-file fileb://psn-fetcher.zip
