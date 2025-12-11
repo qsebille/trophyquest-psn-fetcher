@@ -37,12 +37,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Read app version
-        id: app_version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Update code (psn-fetcher)
         run: |
           aws lambda update-function-code \
@@ -56,12 +50,14 @@ jobs:
 
       - name: Publish version & update alias (psn-fetcher)
         run: |
-          VERSION=$(aws lambda publish-version \
+          TQ_VERSION=$(jq -r '.version' package.json)
+          
+          LAMBDA_VERSION=$(aws lambda publish-version \
             --function-name trophyquest-psn-fetcher \
-            --description "TrophyQuest Fetcher v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
+            --description "TrophyQuest Fetcher v$TQ_VERSION" \
             --query 'Version' --output text)
           
           aws lambda update-alias \
             --function-name trophyquest-psn-fetcher \
             --name prod \
-            --function-version $VERSION
+            --function-version $LAMBDA_VERSION

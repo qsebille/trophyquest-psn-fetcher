@@ -50,12 +50,14 @@ jobs:
 
       - name: Publish version & update alias (image-uploader)
         run: |
-          VERSION=$(aws lambda publish-version \
+          TQ_VERSION=$(jq -r '.version' package.json)
+          
+          LAMBDA_VERSION=$(aws lambda publish-version \
             --function-name trophyquest-image-uploader \
-            --description "TrophyQuest Refresher v${{ steps.app_version.outputs.version }} - $GITHUB_SHA" \
+            --description "TrophyQuest Image Uploader v$TQ_VERSION" \
             --query 'Version' --output text)
           
           aws lambda update-alias \
             --function-name trophyquest-image-uploader \
             --name prod \
-            --function-version $VERSION
+            --function-version $LAMBDA_VERSION
