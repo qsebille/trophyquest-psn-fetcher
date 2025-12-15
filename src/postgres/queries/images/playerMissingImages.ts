@@ -25,7 +25,7 @@ export async function updatePlayerMissingAwsImages(
     pool: Pool,
 ): Promise<InsertQueryResult> {
     if (images.length === 0) {
-        console.warn("No game images to update in postgres database.");
+        console.warn("No player images to update in postgres database.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

@@ -38,7 +38,6 @@ async function runRefresher(): Promise<void> {
         const durationSeconds = (Date.now() - startTime) / 1000;
         console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);
         await pool.end();
-        process.exit(0);
     }
 }
 
