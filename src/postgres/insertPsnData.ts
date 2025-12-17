@@ -27,6 +27,7 @@ export async function insertPsnData(
 ): Promise<void> {
     const client: PoolClient = await pool.connect();
     try {
+        console.info("Inserting psn data into postgres...")
         await client.query('BEGIN');
         const userResponse: InsertQueryResult = await upsertPsnUserProfiles(client, data.users);
         const titlesResponse: InsertQueryResult = await insertPsnTitles(client, data.titles);
@@ -37,14 +38,14 @@ export async function insertPsnData(
         const earnedTrophyResponse: InsertQueryResult = await insertPsnEarnedTrophies(client, data.earnedTrophies);
         await client.query('COMMIT');
 
-        console.info(`[POSTGRES-PSN] Upserted ${userResponse.rowsInserted} users into postgres database`);
-        console.info(`[POSTGRES-PSN] Inserted ${titlesResponse.rowsInserted} titles into postgres database ${titlesResponse.rowsIgnored > 0 ? `(${titlesResponse.rowsIgnored} ignored)` : ''}`);
-        console.info(`[POSTGRES-PSN] Inserted ${playedTitlesResponse.rowsInserted} played titles into postgres database`);
-        console.info(`[POSTGRES-PSN] Inserted ${trophySetsResponse.rowsInserted} trophy sets into postgres database ${trophySetsResponse.rowsIgnored > 0 ? `(${trophySetsResponse.rowsIgnored} ignored)` : ''}`);
-        console.info(`[POSTGRES-PSN] Inserted ${titlesTrophySetResponse.rowsInserted} titles / trophy sets links into postgres database ${titlesTrophySetResponse.rowsIgnored > 0 ? `(${titlesTrophySetResponse.rowsIgnored} ignored)` : ''}`);
-        console.info(`[POSTGRES-PSN] Inserted ${trophyResponse.rowsInserted} trophies into postgres database ${trophyResponse.rowsIgnored > 0 ? `(${trophyResponse.rowsIgnored} ignored)` : ''}`);
-        console.info(`[POSTGRES-PSN] Inserted ${earnedTrophyResponse.rowsInserted} earned trophies into postgres database ${earnedTrophyResponse.rowsIgnored > 0 ? `(${earnedTrophyResponse.rowsIgnored} ignored)` : ''}`);
-        console.info('[POSTGRES-PSN] Success');
+        console.info("Insertion of psn data into postgres: Success.")
+        console.info(`Postgres: Upserted ${userResponse.rowsInserted} lines into psn.user_profile table.`);
+        console.info(`Postgres: Inserted ${titlesResponse.rowsInserted} lines into psn.title table ${titlesResponse.rowsIgnored > 0 ? `(${titlesResponse.rowsIgnored} ignored)` : ''}.`);
+        console.info(`Postgres: Inserted ${playedTitlesResponse.rowsInserted} lines into psn.played_title table.`);
+        console.info(`Postgres: Inserted ${trophySetsResponse.rowsInserted} lines into psn.trophy_set table ${trophySetsResponse.rowsIgnored > 0 ? `(${trophySetsResponse.rowsIgnored} ignored)` : ''}.`);
+        console.info(`Postgres: Inserted ${titlesTrophySetResponse.rowsInserted} lines into psn.title_trophy_set table ${titlesTrophySetResponse.rowsIgnored > 0 ? `(${titlesTrophySetResponse.rowsIgnored} ignored)` : ''}.`);
+        console.info(`Postgres: Inserted ${trophyResponse.rowsInserted} lines into psn.trophy table ${trophyResponse.rowsIgnored > 0 ? `(${trophyResponse.rowsIgnored} ignored)` : ''}.`);
+        console.info(`Postgres: Inserted ${earnedTrophyResponse.rowsInserted} lines into psn.earned_trophy table ${earnedTrophyResponse.rowsIgnored > 0 ? `(${earnedTrophyResponse.rowsIgnored} ignored)` : ''}.`);
     } catch (err) {
         await client.query('ROLLBACK');
         throw err;

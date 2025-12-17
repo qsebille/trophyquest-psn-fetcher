@@ -15,6 +15,7 @@ export async function insertAppData(
 ): Promise<void> {
     const client: PoolClient = await pool.connect();
     try {
+        console.info("Inserting app data into postgres...")
         await client.query('BEGIN');
         const playerResponse: InsertQueryResult = await upsertAppPlayers(client, data.players);
         const gameResponse: InsertQueryResult = await insertAppGame(client, data.games);
@@ -25,14 +26,14 @@ export async function insertAppData(
         const earnedTrophyResponse: InsertQueryResult = await insertAppEarnedTrophy(client, data.earnedTrophies);
         await client.query('COMMIT');
 
-        console.info(`[POSTGRES-APP] Upserted ${playerResponse.rowsInserted} players into postgres database`);
-        console.info(`[POSTGRES-APP] Inserted ${gameResponse.rowsInserted} games into postgres database ${gameResponse.rowsIgnored > 0 ? `(${gameResponse.rowsIgnored} ignored)` : ''}`);
-        console.info(`[POSTGRES-APP] Inserted ${collectionResponse.rowsInserted} trophy collections into postgres database ${collectionResponse.rowsIgnored > 0 ? `(${collectionResponse.rowsIgnored} ignored)` : ''}`);
-        console.info(`[POSTGRES-APP] Inserted ${trophyResponse.rowsInserted} trophies into postgres database ${trophyResponse.rowsIgnored > 0 ? `(${trophyResponse.rowsIgnored} ignored)` : ''}`);
-        console.info(`[POSTGRES-APP] Inserted ${playedGameResponse.rowsInserted} played games into postgres database`);
-        console.info(`[POSTGRES-APP] Inserted ${playedTrophyCollectionResponse.rowsInserted} played trophy collections into postgres database ${playedTrophyCollectionResponse.rowsIgnored > 0 ? `(${playedTrophyCollectionResponse.rowsIgnored} ignored)` : ''}`);
-        console.info(`[POSTGRES-APP] Inserted ${earnedTrophyResponse.rowsInserted} earned trophies into postgres database ${earnedTrophyResponse.rowsIgnored > 0 ? `(${earnedTrophyResponse.rowsIgnored} ignored)` : ''}`);
-        console.info('[POSTGRES-APP] Success');
+        console.info("Insertion of app data into postgres: Success")
+        console.info(`Postgres: Upserted ${playerResponse.rowsInserted} lines into app.player table`);
+        console.info(`Postgres: Inserted ${gameResponse.rowsInserted} lines into app.game table ${gameResponse.rowsIgnored > 0 ? `(${gameResponse.rowsIgnored} ignored)` : ''}`);
+        console.info(`Postgres: Inserted ${collectionResponse.rowsInserted} lines into app.trophy_collection table ${collectionResponse.rowsIgnored > 0 ? `(${collectionResponse.rowsIgnored} ignored)` : ''}`);
+        console.info(`Postgres: Inserted ${trophyResponse.rowsInserted} lines into app.trophy table ${trophyResponse.rowsIgnored > 0 ? `(${trophyResponse.rowsIgnored} ignored)` : ''}`);
+        console.info(`Postgres: Inserted ${playedGameResponse.rowsInserted} lines into app.played_game table`);
+        console.info(`Postgres: Inserted ${playedTrophyCollectionResponse.rowsInserted} lines into app.played_trophy_collection table ${playedTrophyCollectionResponse.rowsIgnored > 0 ? `(${playedTrophyCollectionResponse.rowsIgnored} ignored)` : ''}`);
+        console.info(`Postgres: Inserted ${earnedTrophyResponse.rowsInserted} lines into app.earned_trophy table ${earnedTrophyResponse.rowsIgnored > 0 ? `(${earnedTrophyResponse.rowsIgnored} ignored)` : ''}`);
     } catch (err) {
         await client.query('ROLLBACK');
         throw err;

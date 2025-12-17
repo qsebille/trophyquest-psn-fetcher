@@ -25,7 +25,7 @@ export async function updateTrophyMissingAwsImages(
     pool: Pool,
 ): Promise<InsertQueryResult> {
     if (images.length === 0) {
-        console.warn("No trophy images to update in postgres database.");
+        console.warn("No data to update in app.trophy table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

@@ -15,18 +15,19 @@ export async function updateImageData(
 ): Promise<void> {
     const client: PoolClient = await pool.connect();
     try {
+        console.info("Updating image data in postgres...")
         await client.query('BEGIN');
-
         const playerResult: InsertQueryResult = await updatePlayerMissingAwsImages(playerImageData, pool);
         const gameResult: InsertQueryResult = await updateGameMissingAwsImages(gameImageData, pool);
         const collectionResult: InsertQueryResult = await updateCollectionMissingAwsImages(collectionImageData, pool);
         const trophyResult: InsertQueryResult = await updateTrophyMissingAwsImages(trophyImageData, pool);
+        await client.query('COMMIT');
 
-        console.info(`[IMAGE-POSTGRES] Updated ${playerResult.rowsInserted} player images into postgres database ${playerResult.rowsIgnored > 0 ? `(${playerResult.rowsIgnored} ignored)` : ''}`);
-        console.info(`[IMAGE-POSTGRES] Updated ${gameResult.rowsInserted} game images into postgres database ${gameResult.rowsIgnored > 0 ? `(${gameResult.rowsIgnored} ignored)` : ''}`);
-        console.info(`[IMAGE-POSTGRES] Updated ${collectionResult.rowsInserted} collection images into postgres database ${collectionResult.rowsIgnored > 0 ? `(${collectionResult.rowsIgnored} ignored)` : ''}`);
-        console.info(`[IMAGE-POSTGRES] Updated ${trophyResult.rowsInserted} trophy images into postgres database ${trophyResult.rowsIgnored > 0 ? `(${trophyResult.rowsIgnored} ignored)` : ''}`);
-        console.info('[IMAGE-POSTGRES] Success');
+        console.info("Update of image data in postgres Success")
+        console.info(`Postgres: Updated ${playerResult.rowsInserted} images in app.player table ${playerResult.rowsIgnored > 0 ? `(${playerResult.rowsIgnored} ignored)` : ''}`);
+        console.info(`Postgres: Updated ${gameResult.rowsInserted} images into app.game table ${gameResult.rowsIgnored > 0 ? `(${gameResult.rowsIgnored} ignored)` : ''}`);
+        console.info(`Postgres: Updated ${collectionResult.rowsInserted} images into app.trophy_collection table ${collectionResult.rowsIgnored > 0 ? `(${collectionResult.rowsIgnored} ignored)` : ''}`);
+        console.info(`Postgres: Updated ${trophyResult.rowsInserted} images into app.trophy table ${trophyResult.rowsIgnored > 0 ? `(${trophyResult.rowsIgnored} ignored)` : ''}`);
     } catch (err) {
         await client.query('ROLLBACK');
         throw err;

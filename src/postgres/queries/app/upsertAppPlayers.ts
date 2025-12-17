@@ -9,7 +9,7 @@ export async function upsertAppPlayers(
     players: AppPlayer[],
 ): Promise<InsertQueryResult> {
     if (players.length === 0) {
-        console.warn("No players to insert into postgres database.");
+        console.warn("No data to insert into app.player table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

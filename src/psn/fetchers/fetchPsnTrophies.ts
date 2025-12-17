@@ -25,7 +25,7 @@ export async function fetchPsnUserTrophies(
     for (const trophySet of trophySets) {
         const currentTrophies: PsnTrophy[] = await fetchPsnTrophiesForSet(trophySet, psnAuthTokens);
         const currentEarnedTrophies: PsnEarnedTrophy[] = await fetchPsnEarnedTrophiesForSet(trophySet, psnAuthTokens, accountId);
-        console.info(`[PSN-API] Fetched ${currentTrophies.length} trophies and ${currentEarnedTrophies.length} earned trophies for ${trophySet.name} (${trophySet.id})`);
+        console.info(`PSN API: Fetched ${currentTrophies.length} trophies and ${currentEarnedTrophies.length} earned trophies for ${trophySet.name} (${trophySet.id})`);
 
         trophies.push(...currentTrophies);
         earnedTrophies.push(...currentEarnedTrophies);

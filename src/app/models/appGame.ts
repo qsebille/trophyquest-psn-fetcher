@@ -1,4 +1,5 @@
-import {GameCollectionStaging} from "./staging/gameCollectionStaging.js";
+import {PsnTitle} from "../../psn/models/psnTitle.js";
+import {computeGameUuid} from "../utils/uuid.js";
 
 export interface AppGame {
     id: string,
@@ -6,13 +7,12 @@ export interface AppGame {
     image_url: string
 }
 
-export function buildAppGames(collectionStaging: GameCollectionStaging[]) {
-    const gameIds: Set<string> = new Set(collectionStaging.map(g => g.gameAppUuid));
-    const games: AppGame[] = [];
-    for (const gameId of gameIds) {
-        const collection = collectionStaging.filter(g => g.gameAppUuid === gameId)[0];
-        games.push({id: gameId, title: collection.gameName, image_url: collection.gameImageUrl});
-    }
-
-    return games;
+export function buildAppGames(psnTitleList: PsnTitle[]): AppGame[] {
+    return psnTitleList.map(title => {
+        return {
+            id: computeGameUuid(title),
+            title: title.name,
+            image_url: title.imageUrl
+        }
+    });
 }

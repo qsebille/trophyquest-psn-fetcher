@@ -9,7 +9,7 @@ export async function insertAppTrophyCollection(
     collections: AppTrophyCollection[],
 ): Promise<InsertQueryResult> {
     if (collections.length === 0) {
-        console.warn("No collections to insert into postgres database.");
+        console.warn("No data to insert into app.trophy_collection table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

@@ -1,4 +1,5 @@
-import {UserStaging} from "./staging/userStaging.js";
+import {PsnUser} from "../../psn/models/psnUser.js";
+import {computeUserUuid} from "../utils/uuid.js";
 
 export interface AppPlayer {
     id: string,
@@ -6,10 +7,10 @@ export interface AppPlayer {
     avatar_url: string
 }
 
-export function buildAppPlayer(userProfileStaging: UserStaging[]): AppPlayer[] {
-    return userProfileStaging.map(u => {
+export function buildAppPlayer(psnUserList: PsnUser[]): AppPlayer[] {
+    return psnUserList.map(u => {
         return {
-            id: u.userAppId,
+            id: computeUserUuid(u),
             pseudo: u.profileName,
             avatar_url: u.avatarUrl ?? ""
         };

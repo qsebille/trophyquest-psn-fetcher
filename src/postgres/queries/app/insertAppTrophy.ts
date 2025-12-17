@@ -9,7 +9,7 @@ export async function insertAppTrophy(
     trophies: AppTrophy[],
 ): Promise<InsertQueryResult> {
     if (trophies.length === 0) {
-        console.warn("No trophies to insert into postgres database.");
+        console.warn("No data to insert into app.trophy table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

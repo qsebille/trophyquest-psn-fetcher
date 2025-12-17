@@ -18,7 +18,7 @@ export async function insertPsnTitlesTrophySet(
     psnTitleTrophySets: PsnTitleTrophySet[]
 ): Promise<InsertQueryResult> {
     if (psnTitleTrophySets.length === 0) {
-        console.info("No title-trophy-set links to insert into postgres database.");
+        console.warn("No data to update in psn.title_trophy_set table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

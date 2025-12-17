@@ -16,7 +16,7 @@ import {getMandatoryParam} from "./config/getMandatoryParam.js";
  */
 async function main(): Promise<void> {
     const startTime = Date.now();
-    console.info("[USER-REMOVER] START PSN User remover")
+    console.info("START User Remover function")
 
     const npsso: string = getMandatoryParam('NPSSO');
     const profileName: string = getMandatoryParam('PROFILE_NAME');
@@ -27,10 +27,10 @@ async function main(): Promise<void> {
         const psnUser: PsnUser = await fetchPsnUser(psnAuthTokens, profileName);
         const accountId: string = psnUser.id;
         await deleteUserProfile(pool, accountId);
-        console.info("[USER-REMOVER] Success");
+        console.info("User Remover : Success");
     } finally {
         const durationSeconds = (Date.now() - startTime) / 1000;
-        console.info(`[USER-REMOVER] Total processing time: ${durationSeconds.toFixed(2)} s`);
+        console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);
         await pool.end();
     }
 }

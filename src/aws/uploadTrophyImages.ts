@@ -6,7 +6,7 @@ export async function uploadTrophyImages(
     missingTrophyImages: TrophyImageData[],
     concurrency: number
 ): Promise<TrophyImageData[]> {
-    return await mapWithConcurrency(missingTrophyImages, concurrency, async (data) => {
+    const staging = await mapWithConcurrency(missingTrophyImages, concurrency, async (data) => {
             if (!data.icon_url) {
                 return data;
             }
@@ -15,4 +15,6 @@ export async function uploadTrophyImages(
             return {...data, aws_icon_url: awsUrl};
         }
     );
+
+    return staging.filter(data => data.aws_icon_url !== null);
 }

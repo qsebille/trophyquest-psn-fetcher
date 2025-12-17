@@ -17,7 +17,7 @@ export async function upsertPsnUserProfiles(
     users: PsnUser[],
 ): Promise<InsertQueryResult> {
     if (users.length === 0) {
-        console.warn("No user profiles to insert into postgres database.");
+        console.warn("No data to update in psn.user_profile table.");
         return {
             rowsInserted: 0,
             rowsIgnored: 0,

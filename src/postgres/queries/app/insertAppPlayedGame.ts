@@ -9,7 +9,7 @@ export async function insertAppPlayedGame(
     playedGames: AppPlayedGame[],
 ): Promise<InsertQueryResult> {
     if (playedGames.length === 0) {
-        console.warn("No played games to insert into postgres database.");
+        console.warn("No data to insert into app.played_game table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

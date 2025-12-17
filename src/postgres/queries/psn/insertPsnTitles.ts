@@ -16,7 +16,7 @@ export async function insertPsnTitles(
     titles: PsnTitle[]
 ): Promise<InsertQueryResult> {
     if (titles.length === 0) {
-        console.info("No titles to insert into postgres database.");
+        console.warn("No data to update in psn.title table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

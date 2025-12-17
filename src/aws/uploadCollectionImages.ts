@@ -7,7 +7,7 @@ export async function uploadCollectionImages(
     missingCollectionImages: CollectionImageData[],
     concurrency: number
 ): Promise<GameImageData[]> {
-    return await mapWithConcurrency(missingCollectionImages, concurrency, async (data) => {
+    const staging = await mapWithConcurrency(missingCollectionImages, concurrency, async (data) => {
             if (!data.image_url) {
                 return data;
             }
@@ -16,4 +16,6 @@ export async function uploadCollectionImages(
             return {...data, aws_image_url: awsUrl};
         }
     );
+
+    return staging.filter(data => data.aws_image_url !== null);
 }

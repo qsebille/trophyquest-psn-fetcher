@@ -1,6 +1,5 @@
 import {PsnPlayedTrophySet} from "../../psn/models/psnPlayedTrophySet.js";
-import {UserStaging} from "./staging/userStaging.js";
-import {GameCollectionStaging} from "./staging/gameCollectionStaging.js";
+import {SchemaIdMap} from "./staging/schemaIdMap.js";
 
 export interface AppPlayedTrophyCollection {
     player_id: string;
@@ -8,27 +7,28 @@ export interface AppPlayedTrophyCollection {
 }
 
 export function buildAppPlayedTrophyCollections(
-    psnPlayedTrophySets: PsnPlayedTrophySet[],
-    userStaging: UserStaging[],
-    gameCollectionStaging: GameCollectionStaging[],
+    psnPlayedTrophySetList: PsnPlayedTrophySet[],
+    schemaIdMap: SchemaIdMap,
 ): AppPlayedTrophyCollection[] {
-    const userStagingByPsnId = new Map<string, UserStaging>(userStaging.map(u => [u.userPsnId, u]));
-    const trophyCollectionStagingByPsnId = new Map<string, GameCollectionStaging>(gameCollectionStaging.map(c => [c.psnTrophySetId, c]));
-
     const appUserTrophyCollections: AppPlayedTrophyCollection[] = [];
     const collectionIds = new Set<String>();
-    for (const playedTrophySet of psnPlayedTrophySets) {
-        const user = userStagingByPsnId.get(playedTrophySet.userId);
-        const trophyCollection = trophyCollectionStagingByPsnId.get(playedTrophySet.trophySetId);
-
-        if (!user || !trophyCollection) {
-            continue;
+    for (const playedTrophySet of psnPlayedTrophySetList) {
+        const playerId = schemaIdMap.players.get(playedTrophySet.userId);
+        if (!playerId) {
+            console.error(`Build played trophy collection: Could not find user ${playedTrophySet.userId} in schema-id-map.`);
+            process.exit(1);
         }
-        const id = `${user.userAppId}-${trophyCollection.trophyCollectionAppUuid}`;
+        const collectionId = schemaIdMap.collections.get(playedTrophySet.trophySetId);
+        if (!collectionId) {
+            console.error(`Build played trophy collection: Could not find trophy set ${playedTrophySet.trophySetId} in schema-id-map.`);
+            process.exit(1);
+        }
+
+        const id = `${playerId}-${collectionId}`;
         if (!collectionIds.has(id)) {
             appUserTrophyCollections.push({
-                player_id: user.userAppId,
-                trophy_collection_id: trophyCollection.trophyCollectionAppUuid,
+                player_id: playerId,
+                trophy_collection_id: collectionId,
             });
             collectionIds.add(id);
         }

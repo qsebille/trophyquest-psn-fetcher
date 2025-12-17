@@ -25,7 +25,7 @@ export async function updateCollectionMissingAwsImages(
     pool: Pool,
 ): Promise<InsertQueryResult> {
     if (images.length === 0) {
-        console.warn("No collection images to update in postgres database.");
+        console.warn("No data to update in app.trophy_collection table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

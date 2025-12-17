@@ -7,8 +7,8 @@ export async function uploadImageFromUrl(
     fileName: string
 ): Promise<string | null> {
     if (!process.env.LAMBDA_TASK_ROOT) {
-        console.warn("[IMAGE-UPLOADER] Running locally, skipping image upload.")
-        return imageUrl;
+        console.warn("Running locally, skipping image upload.")
+        return null;
     }
 
     const region = process.env.AWS_REGION ?? "eu-west-3";
@@ -17,7 +17,7 @@ export async function uploadImageFromUrl(
 
     const res = await fetch(imageUrl);
     if (!res.ok) {
-        console.warn(`Failed to download image ${imageUrl}: ${res.status} ${res.statusText}`);
+        console.error(`Failed to download image ${imageUrl}: ${res.status} ${res.statusText}`);
         return null;
     }
 

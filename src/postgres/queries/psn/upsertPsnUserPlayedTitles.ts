@@ -18,7 +18,7 @@ export async function upsertPsnUserPlayedTitles(
     playedTitles: PsnPlayedTitle[]
 ): Promise<InsertQueryResult> {
     if (playedTitles.length === 0) {
-        console.info("No user titles to insert into postgres database.");
+        console.warn("No data to update in psn.user_played_title table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 

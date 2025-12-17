@@ -2,6 +2,8 @@ import {v5 as uuidv5} from "uuid";
 import {PsnTitle} from "../../psn/models/psnTitle.js";
 import {toSlug} from "./toSlug.js";
 import {PsnTrophy} from "../../psn/models/psnTrophy.js";
+import {PsnUser} from "../../psn/models/psnUser.js";
+import {PsnTrophySet} from "../../psn/models/psnTrophySet.js";
 
 function normalize(s: string) {
     return s
@@ -18,8 +20,8 @@ const NS_GAMES = "5f1d2b2d-5a5a-4d2d-8f2b-8b5f1a2c7e10";
 const NS_TROPHY_COLLECTION = "b79f0e2d-9b33-4a7e-9e4a-0d4e2a9b7c11";
 const NS_TROPHIES = "d4dc082a-1db2-4571-9740-9f7e657628b7";
 
-export function computeUserUuid(accountId: string) {
-    return uuidv5(normalize(accountId), NS_USERS);
+export function computeUserUuid(psnUser: PsnUser) {
+    return uuidv5(normalize(psnUser.id), NS_USERS);
 }
 
 export function computeGameUuid(psnTitle: PsnTitle) {
@@ -27,10 +29,11 @@ export function computeGameUuid(psnTitle: PsnTitle) {
 }
 
 export function computeTrophyCollectionUuid(
-    gameId: string,
-    trophyCollectionId: string,
+    psnTitle: PsnTitle,
+    psnTrophySet: PsnTrophySet,
 ) {
-    return uuidv5(`${gameId}_${trophyCollectionId}`, NS_TROPHY_COLLECTION);
+    const gameId: string = computeGameUuid(psnTitle);
+    return uuidv5(`${gameId}_${psnTrophySet.id}`, NS_TROPHY_COLLECTION);
 }
 
 export function computeTrophyUuid(trophy: PsnTrophy) {

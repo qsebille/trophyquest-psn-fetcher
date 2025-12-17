@@ -5,7 +5,7 @@ import {PsnDataWrapper} from "./psn/models/wrappers/psnDataWrapper.js";
 import {fetchPsnUserData} from "./psn/fetchPsnUserData.js";
 import {insertPsnData} from "./postgres/insertPsnData.js";
 import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
-import computeAppData from "./app/computeAppData.js";
+import {computeAppData} from "./app/computeAppData.js";
 import {insertAppData} from "./postgres/insertAppData.js";
 import {getMandatoryParam} from "./config/getMandatoryParam.js";
 
@@ -17,12 +17,12 @@ import {getMandatoryParam} from "./config/getMandatoryParam.js";
  */
 async function runFetcher(): Promise<void> {
     const startTime = Date.now();
-    console.info("[PSN-FETCHER] Start");
+    console.info("Start PSN Fetcher function");
 
     const npsso: string = getMandatoryParam('NPSSO');
     const profileName: string = getMandatoryParam('PROFILE_NAME');
     const pool: Pool = buildPostgresPool();
-    console.info(`[PSN-FETCHER] Fetching user data for profile ${profileName}`);
+    console.info(`Fetching PSN data for profile ${profileName}`);
 
     try {
         const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(npsso);
@@ -30,10 +30,10 @@ async function runFetcher(): Promise<void> {
         const appData: AppDataWrapper = computeAppData(psnData);
         await insertPsnData(pool, psnData);
         await insertAppData(pool, appData);
-        console.info("[PSN-FETCHER] Success");
+        console.info("PSN Fetcher : Success");
     } finally {
         const durationSeconds = (Date.now() - startTime) / 1000;
-        console.info(`[PSN-FETCHER] Total processing time: ${durationSeconds.toFixed(2)} s`);
+        console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);
         await pool.end();
     }
 }

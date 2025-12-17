@@ -6,7 +6,7 @@ import {PsnDataWrapper} from "./psn/models/wrappers/psnDataWrapper.js";
 import {refreshPsnData} from "./psn/refreshPsnData.js";
 import {insertPsnData} from "./postgres/insertPsnData.js";
 import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
-import computeAppData from "./app/computeAppData.js";
+import {computeAppData} from "./app/computeAppData.js";
 import {insertAppData} from "./postgres/insertAppData.js";
 import {PsnUserProfilePostgres} from "./postgres/models/psnUserProfilePostgres.js";
 import {getMandatoryParam} from "./config/getMandatoryParam.js";
@@ -21,7 +21,7 @@ import {getMandatoryParam} from "./config/getMandatoryParam.js";
  */
 async function runRefresher(): Promise<void> {
     const startTime = Date.now();
-    console.info("[PSN-REFRESHER] Start");
+    console.info("Start PSN Refresher function");
 
     const npsso: string = getMandatoryParam('NPSSO');
     const pool: Pool = buildPostgresPool();
@@ -33,7 +33,7 @@ async function runRefresher(): Promise<void> {
         const appData: AppDataWrapper = computeAppData(psnData);
         await insertPsnData(pool, psnData);
         await insertAppData(pool, appData);
-        console.info("[PSN-REFRESHER] Success");
+        console.info("PSN Refresher : Success");
     } finally {
         const durationSeconds = (Date.now() - startTime) / 1000;
         console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);

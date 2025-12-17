@@ -1,6 +1,5 @@
 import {PsnEarnedTrophy} from "../../psn/models/psnEarnedTrophy.js";
-import {UserStaging} from "./staging/userStaging.js";
-import {TrophyStaging} from "./staging/trophyStaging.js";
+import {SchemaIdMap} from "./staging/schemaIdMap.js";
 
 export interface AppEarnedTrophy {
     player_id: string;
@@ -9,27 +8,29 @@ export interface AppEarnedTrophy {
 }
 
 export function buildAppEarnedTrophies(
-    psnUserEarnedTrophies: PsnEarnedTrophy[],
-    userStaging: UserStaging[],
-    trophyStaging: TrophyStaging[],
+    PsnEarnedTrophyList: PsnEarnedTrophy[],
+    schemaIdMap: SchemaIdMap,
 ): AppEarnedTrophy[] {
-    const userStagingById = new Map<string, UserStaging>(userStaging.map(u => [u.userPsnId, u]));
-    const trophyStagingByPsnId = new Map<string, TrophyStaging>(trophyStaging.map(t => [t.trophyPsnId, t]));
-
     const appUserTrophies: AppEarnedTrophy[] = [];
     const ids = new Set<String>();
-    for (const psnEarnedTrophy of psnUserEarnedTrophies) {
-        const user = userStagingById.get(psnEarnedTrophy.userId);
-        const trophy = trophyStagingByPsnId.get(psnEarnedTrophy.trophyId);
-        if (!user || !trophy) {
-            continue;
+    for (const psnEarnedTrophy of PsnEarnedTrophyList) {
+        const userAppId = schemaIdMap.players.get(psnEarnedTrophy.userId);
+        if (!userAppId) {
+            console.error(`Build earned-trophies: Could not find user ${psnEarnedTrophy.userId} in schema-id-map.`);
+            process.exit(1);
         }
 
-        const id = `${user.userAppId}-${trophy.trophyPsnId}`;
+        const trophyAppId = schemaIdMap.trophies.get(psnEarnedTrophy.trophyId);
+        if (!trophyAppId) {
+            console.error(`Build earned-trophies: Could not find trophy ${psnEarnedTrophy.trophyId} in schema-id-map.`);
+            process.exit(1);
+        }
+
+        const id = `${userAppId}-${psnEarnedTrophy.trophyId}`;
         if (!ids.has(id)) {
             appUserTrophies.push({
-                player_id: user.userAppId,
-                trophy_id: trophy.trophyAppUuid,
+                player_id: userAppId,
+                trophy_id: trophyAppId,
                 earned_at: psnEarnedTrophy.earnedDateTime,
             });
             ids.add(id);

@@ -14,7 +14,7 @@ import {uploadPlayerImages} from "./aws/uploadPlayerImages.js";
 
 async function runImageUploader(): Promise<void> {
     const startTime = Date.now();
-    console.info("[IMAGE-UPLOADER] Start");
+    console.info("Start Image Upload Function");
 
     const pool: Pool = buildPostgresPool();
     const limitPerEntity: number = Number(getMandatoryParam('LIMIT_PER_ENTITY'));
@@ -23,25 +23,25 @@ async function runImageUploader(): Promise<void> {
     try {
         const playerMissingImages: PlayerImageData[] = await getPlayerMissingAwsImages(pool, limitPerEntity);
         const playerUploadedImages: PlayerImageData[] = await uploadPlayerImages(playerMissingImages, concurrency);
-        console.info(`[IMAGE-UPLOADER] Uploaded ${playerUploadedImages.length} player images`);
+        console.info(`Uploaded ${playerUploadedImages.length} player images`);
 
         const gameMissingImages: GameImageData[] = await getGameMissingAwsImages(pool, limitPerEntity);
         const gameUploadedImages: GameImageData[] = await uploadGameImages(gameMissingImages, concurrency);
-        console.info(`[IMAGE-UPLOADER] Uploaded ${gameUploadedImages.length} game images`);
+        console.info(`Uploaded ${gameUploadedImages.length} game images`);
 
         const collectionMissingImages: CollectionImageData[] = await getCollectionMissingAwsImages(pool, limitPerEntity);
         const collectionUploadedImages: CollectionImageData[] = await uploadCollectionImages(collectionMissingImages, concurrency);
-        console.info(`[IMAGE-UPLOADER] Uploaded ${collectionUploadedImages.length} collection images`);
+        console.info(`Uploaded ${collectionUploadedImages.length} collection images`);
 
         const trophyMissingImages: TrophyImageData[] = await getTrophyMissingAwsImages(pool, limitPerEntity);
         const trophyUploadedImages: TrophyImageData[] = await uploadTrophyImages(trophyMissingImages, concurrency);
-        console.info(`[IMAGE-UPLOADER] Uploaded ${trophyUploadedImages.length} trophy images`);
+        console.info(`Uploaded ${trophyUploadedImages.length} trophy images`);
 
         await updateImageData(pool, playerUploadedImages, gameUploadedImages, collectionUploadedImages, trophyUploadedImages);
-        console.info("[IMAGE-UPLOADER] Success");
+        console.info("Image Upload : Success");
     } finally {
         const durationSeconds = (Date.now() - startTime) / 1000;
-        console.info(`[IMAGE-UPLOADER] Total processing time: ${durationSeconds.toFixed(2)} s`);
+        console.info(`Total processing time: ${durationSeconds.toFixed(2)} s`);
         await pool.end();
     }
 }

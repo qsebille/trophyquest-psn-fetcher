@@ -1,8 +1,5 @@
 import {PsnDataWrapper} from "../psn/models/wrappers/psnDataWrapper.js";
 import {AppDataWrapper} from "./models/wrappers/appDataWrapper.js";
-import {buildUserProfileStaging, UserStaging} from "./models/staging/userStaging.js";
-import {buildGameCollectionStaging, GameCollectionStaging} from "./models/staging/gameCollectionStaging.js";
-import {buildTrophyStaging, TrophyStaging} from "./models/staging/trophyStaging.js";
 import {AppPlayer, buildAppPlayer} from "./models/appPlayer.js";
 import {AppGame, buildAppGames} from "./models/appGame.js";
 import {AppPlayedGame, buildAppPlayedGames} from "./models/appPlayedGame.js";
@@ -10,29 +7,29 @@ import {AppTrophyCollection, buildAppTrophyCollections} from "./models/appTrophy
 import {AppPlayedTrophyCollection, buildAppPlayedTrophyCollections} from "./models/appPlayedTrophyCollection.js";
 import {AppTrophy, buildAppTrophies} from "./models/appTrophy.js";
 import {AppEarnedTrophy, buildAppEarnedTrophies} from "./models/appEarnedTrophy.js";
+import {buildSchemaIdMap, SchemaIdMap} from "./models/staging/schemaIdMap.js";
 
 
-function computeAppData(psnData: PsnDataWrapper): AppDataWrapper {
-    const userProfileStaging: UserStaging[] = buildUserProfileStaging(psnData.users);
-    const trophyCollectionStaging: GameCollectionStaging[] = buildGameCollectionStaging(psnData.titles, psnData.trophySets, psnData.titleTrophySets);
-    const trophyStaging: TrophyStaging[] = buildTrophyStaging(trophyCollectionStaging, psnData.trophies);
+export function computeAppData(wrapper: PsnDataWrapper): AppDataWrapper {
+    console.info(`Computing app data...`);
+    const schemaIdMap: SchemaIdMap = buildSchemaIdMap(wrapper);
 
-    const appPlayers: AppPlayer[] = buildAppPlayer(userProfileStaging);
-    const appGames: AppGame[] = buildAppGames(trophyCollectionStaging);
-    const appPlayedGames: AppPlayedGame[] = buildAppPlayedGames(psnData.playedTitles, userProfileStaging, trophyCollectionStaging);
-    const appTrophyCollections: AppTrophyCollection[] = buildAppTrophyCollections(trophyCollectionStaging);
-    const appPlayedTrophyCollections: AppPlayedTrophyCollection[] = buildAppPlayedTrophyCollections(psnData.playedTrophySets, userProfileStaging, trophyCollectionStaging);
-    const appTrophies: AppTrophy[] = buildAppTrophies(trophyStaging);
-    const appEarnedTrophies: AppEarnedTrophy[] = buildAppEarnedTrophies(psnData.earnedTrophies, userProfileStaging, trophyStaging);
+    const appPlayers: AppPlayer[] = buildAppPlayer(wrapper.users);
+    const appGames: AppGame[] = buildAppGames(wrapper.titles);
+    const appPlayedGames: AppPlayedGame[] = buildAppPlayedGames(wrapper.playedTitles, schemaIdMap);
+    const appTrophyCollections: AppTrophyCollection[] = buildAppTrophyCollections(wrapper.trophySets, wrapper.titleTrophySets, schemaIdMap);
+    const appPlayedTrophyCollections: AppPlayedTrophyCollection[] = buildAppPlayedTrophyCollections(wrapper.playedTrophySets, schemaIdMap);
+    const appTrophies: AppTrophy[] = buildAppTrophies(wrapper.trophies, schemaIdMap);
+    const appEarnedTrophies: AppEarnedTrophy[] = buildAppEarnedTrophies(wrapper.earnedTrophies, schemaIdMap);
 
-    console.info(`[APP-DATA-BUILDER] Computed ${appPlayers.length} app players.`);
-    console.info(`[APP-DATA-BUILDER] Computed ${appGames.length} app games.`);
-    console.info(`[APP-DATA-BUILDER] Computed ${appPlayedGames.length} app played games.`);
-    console.info(`[APP-DATA-BUILDER] Computed ${appTrophyCollections.length} app trophy collections.`);
-    console.info(`[APP-DATA-BUILDER] Computed ${appPlayedTrophyCollections.length} app played trophy collections.`);
-    console.info(`[APP-DATA-BUILDER] Computed ${appTrophies.length} app trophies.`);
-    console.info(`[APP-DATA-BUILDER] Computed ${appEarnedTrophies.length} app earned trophies.`);
-    console.info(`[APP-DATA-BUILDER] App data computed successfully.`);
+    console.info("Computed app data: Success.")
+    console.info(`Computed ${appPlayers.length} players.`);
+    console.info(`Computed ${appGames.length} games.`);
+    console.info(`Computed ${appTrophyCollections.length} trophy collections.`);
+    console.info(`Computed ${appTrophies.length} trophies.`);
+    console.info(`Computed ${appPlayedGames.length} played games.`);
+    console.info(`Computed ${appPlayedTrophyCollections.length} played trophy collections.`);
+    console.info(`Computed ${appEarnedTrophies.length} earned trophies.`);
 
     return {
         players: appPlayers,
@@ -44,5 +41,3 @@ function computeAppData(psnData: PsnDataWrapper): AppDataWrapper {
         earnedTrophies: appEarnedTrophies,
     };
 }
-
-export default computeAppData
