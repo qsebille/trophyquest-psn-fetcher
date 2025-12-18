@@ -49,7 +49,7 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name trophyquest-image-uploader \
-            --zip-file fileb://psn-fetcher.zip
+            --zip-file fileb://lambda.zip
 
       - name: Wait for update to finish (image-uploader)
         run: |
