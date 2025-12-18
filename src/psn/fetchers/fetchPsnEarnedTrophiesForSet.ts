@@ -16,7 +16,6 @@ export async function fetchPsnEarnedTrophiesForSet(
     psnAuthTokens: PsnAuthTokens,
     accountId: string
 ): Promise<PsnEarnedTrophy[]> {
-    //@ts-ignore
     const {getUserTrophiesEarnedForTitle} = await import("psn-api");
 
     let options = {};
@@ -26,9 +25,7 @@ export async function fetchPsnEarnedTrophiesForSet(
     const userTrophiesEarned = await getUserTrophiesEarnedForTitle(psnAuthTokens, accountId, psnTrophySet.id, "all", options);
 
     return userTrophiesEarned.trophies
-        // @ts-ignore
         .filter(trophy => trophy.earnedDateTime !== undefined)
-        // @ts-ignore
         .map(trophy => {
             return {
                 trophyId: `${psnTrophySet.id}-${trophy.trophyId}`,

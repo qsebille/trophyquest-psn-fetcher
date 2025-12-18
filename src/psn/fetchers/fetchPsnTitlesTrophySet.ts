@@ -20,7 +20,6 @@ export async function fetchPsnTitlesTrophySet(
     psnAuthTokens: PsnAuthTokens,
     accountId: string,
 ): Promise<PsnTitleTrophySet[]> {
-    // @ts-ignore
     const {getUserTrophiesForSpecificTitle} = await import("psn-api");
 
     const trophySetIds: string[] = trophySets.map(t => t.id);

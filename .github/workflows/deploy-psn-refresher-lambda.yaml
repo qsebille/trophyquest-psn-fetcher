@@ -27,8 +27,16 @@ jobs:
       - name: Prune dev deps
         run: npm prune --production
 
-      - name: Zip artifact
-        run: zip -r psn-fetcher.zip dist node_modules package.json
+      - name: Prepare lambda bundle
+        run: |
+          rm -rf lambda
+          mkdir lambda
+          cp package.json lambda/
+          cp package-lock.json lambda/
+          cp -r dist lambda/
+          cp -r node_modules lambda/
+          cd lambda
+          zip -r ../lambda.zip .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

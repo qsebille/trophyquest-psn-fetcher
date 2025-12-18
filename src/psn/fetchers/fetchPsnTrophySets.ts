@@ -15,7 +15,6 @@ export async function fetchPsnTrophySets(
     psnAuthTokens: PsnAuthTokens,
     accountId: string
 ): Promise<PsnTrophySet[]> {
-    // @ts-ignore
     const {getUserTitles} = await import("psn-api");
 
     let offset = 0;
@@ -23,7 +22,6 @@ export async function fetchPsnTrophySets(
     while (true) {
         const options = {limit: PSN_TITLE_BATCH_SIZE, offset};
         const userTitlesResponse = await getUserTitles(psnAuthTokens, accountId, options);
-        // @ts-ignore
         const userSets = userTitlesResponse.trophyTitles.map(trophyTitle => {
             const platform: string = normalizePsnPlatform(trophyTitle.trophyTitlePlatform)
             return {

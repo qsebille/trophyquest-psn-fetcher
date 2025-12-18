@@ -13,7 +13,6 @@ export async function fetchPsnTrophiesForSet(
     psnTrophySet: PsnTrophySet,
     psnAuthTokens: PsnAuthTokens
 ): Promise<PsnTrophy[]> {
-    //@ts-ignore
     const {getTitleTrophies} = await import("psn-api");
 
     let options = {};
