@@ -3,7 +3,7 @@
   "version": "1.3.2",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.json",
     "start-fetcher": "tsx src/runFetcher.ts",
     "start-refresher": "tsx src/runRefresher.ts",
     "start-remover": "tsx src/runRemover.ts",
