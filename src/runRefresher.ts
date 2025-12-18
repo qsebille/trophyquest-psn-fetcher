@@ -1,14 +1,14 @@
 import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
 import {getPsnAuthTokens, PsnAuthTokens} from "./auth/psnAuthTokens.js";
-import {getAllPsnUsers} from "./postgres/queries/psn/getAllPsnUsers.js";
+import {getProfilesToRefresh} from "./postgres/queries/psn/getProfilesToRefresh.js";
 import {PsnDataWrapper} from "./psn/models/wrappers/psnDataWrapper.js";
 import {refreshPsnData} from "./psn/refreshPsnData.js";
 import {insertPsnData} from "./postgres/insertPsnData.js";
 import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
 import {computeAppData} from "./app/computeAppData.js";
 import {insertAppData} from "./postgres/insertAppData.js";
-import {PsnUserProfilePostgres} from "./postgres/models/psnUserProfilePostgres.js";
+import {ProfileToRefresh} from "./postgres/models/profileToRefresh.js";
 import {getMandatoryParam} from "./config/getMandatoryParam.js";
 
 
@@ -28,7 +28,7 @@ async function runRefresher(): Promise<void> {
 
     try {
         const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(npsso);
-        const psnUsersPostgres: PsnUserProfilePostgres[] = await getAllPsnUsers(pool);
+        const psnUsersPostgres: ProfileToRefresh[] = await getProfilesToRefresh(pool);
         const psnData: PsnDataWrapper = await refreshPsnData(psnUsersPostgres, psnAuthTokens);
         const appData: AppDataWrapper = computeAppData(psnData);
         await insertPsnData(pool, psnData);
