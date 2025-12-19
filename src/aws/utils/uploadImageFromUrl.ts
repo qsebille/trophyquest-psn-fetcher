@@ -3,7 +3,7 @@ import {PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 export async function uploadImageFromUrl(
     imageUrl: string,
-    folder: "players" | "games" | "trophies" | "collections",
+    folder: "players" | "games" | "trophies",
     fileName: string
 ): Promise<string | null> {
     if (!process.env.LAMBDA_TASK_ROOT) {

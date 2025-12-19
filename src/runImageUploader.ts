@@ -3,8 +3,6 @@ import {Pool} from "pg";
 import {GameImageData, getGameMissingAwsImages} from "./postgres/queries/images/gameMissingImages.js";
 import {uploadGameImages} from "./aws/uploadGameImages.js";
 import {updateImageData} from "./postgres/updateImageData.js";
-import {CollectionImageData, getCollectionMissingAwsImages} from "./postgres/queries/images/collectionMissingImages.js";
-import {uploadCollectionImages} from "./aws/uploadCollectionImages.js";
 import {getTrophyMissingAwsImages, TrophyImageData} from "./postgres/queries/images/trophyMissingImages.js";
 import {uploadTrophyImages} from "./aws/uploadTrophyImages.js";
 import {getMandatoryParam} from "./config/getMandatoryParam.js";
@@ -29,15 +27,11 @@ async function runImageUploader(): Promise<void> {
         const gameUploadedImages: GameImageData[] = await uploadGameImages(gameMissingImages, concurrency);
         console.info(`Uploaded ${gameUploadedImages.length} game images`);
 
-        const collectionMissingImages: CollectionImageData[] = await getCollectionMissingAwsImages(pool, limitPerEntity);
-        const collectionUploadedImages: CollectionImageData[] = await uploadCollectionImages(collectionMissingImages, concurrency);
-        console.info(`Uploaded ${collectionUploadedImages.length} collection images`);
-
         const trophyMissingImages: TrophyImageData[] = await getTrophyMissingAwsImages(pool, limitPerEntity);
         const trophyUploadedImages: TrophyImageData[] = await uploadTrophyImages(trophyMissingImages, concurrency);
         console.info(`Uploaded ${trophyUploadedImages.length} trophy images`);
 
-        await updateImageData(pool, playerUploadedImages, gameUploadedImages, collectionUploadedImages, trophyUploadedImages);
+        await updateImageData(pool, playerUploadedImages, gameUploadedImages, trophyUploadedImages);
         console.info("Image Upload : Success");
     } finally {
         const durationSeconds = (Date.now() - startTime) / 1000;

@@ -36,7 +36,7 @@ export async function insertPsnTrophies(
         ) => {
             const currentValues: string[] = [
                 t.id,
-                t.trophySetId,
+                t.titleId,
                 t.rank.toString(),
                 t.title,
                 t.detail,
@@ -50,8 +50,7 @@ export async function insertPsnTrophies(
         }).join(',');
 
         const insert = await client.query(`
-            INSERT INTO psn.trophy (id, trophy_set_id, rank, title, detail, is_hidden, trophy_type, icon_url,
-                                    game_group_id)
+            INSERT INTO psn.trophy (id, title_id, rank, title, detail, is_hidden, trophy_type, icon_url, game_group_id)
             VALUES
                 ${placeholders} ON CONFLICT (id)
             DO NOTHING

@@ -1,35 +1,41 @@
 import {PsnAuthTokens} from "../../auth/psnAuthTokens.js";
-import {PsnTrophySet} from "../models/psnTrophySet.js";
+import {PsnTitle} from "../models/psnTitle.js";
 import {PsnTrophy} from "../models/psnTrophy.js";
 import {PsnEarnedTrophy} from "../models/psnEarnedTrophy.js";
 import {PsnTrophyResponse} from "../models/psnTrophyResponse.js";
-import {fetchPsnTrophiesForSet} from "./fetchPsnTrophiesForSet.js";
-import {fetchPsnEarnedTrophiesForSet} from "./fetchPsnEarnedTrophiesForSet.js";
+import {fetchPsnTrophiesForTitle} from "./fetchPsnTrophiesForTitle.js";
+import {fetchPsnEarnedTrophiesForTitle} from "./fetchPsnEarnedTrophiesForTitle.js";
+import {mapWithConcurrency} from "../../aws/utils/mapWithConcurrency.js";
 
-/**
- * Fetches the PlayStation Network (PSN) user's trophies for the provided trophy sets.
- *
- * @param {PsnTrophySet[]} trophySets - An array of PSN trophy sets to fetch trophies for.
- * @param {PsnAuthTokens} psnAuthTokens - The authentication tokens required to access the PSN API.
- * @param {string} accountId - The user's PSN account ID.
- * @return {Promise<PsnTrophyResponse>} A promise that resolves to an object containing the fetched trophies and earned trophies.
- */
+
+type PerSetResult = {
+    trophies: PsnTrophy[];
+    earnedTrophies: PsnEarnedTrophy[];
+};
+
 export async function fetchPsnUserTrophies(
-    trophySets: PsnTrophySet[],
+    psnTitleList: PsnTitle[],
     psnAuthTokens: PsnAuthTokens,
-    accountId: string
+    accountId: string,
+    concurrency: number,
 ): Promise<PsnTrophyResponse> {
-    let trophies: PsnTrophy[] = [];
-    let earnedTrophies: PsnEarnedTrophy[] = [];
+    const safeConcurrency = Math.max(1, concurrency);
 
-    for (const trophySet of trophySets) {
-        const currentTrophies: PsnTrophy[] = await fetchPsnTrophiesForSet(trophySet, psnAuthTokens);
-        const currentEarnedTrophies: PsnEarnedTrophy[] = await fetchPsnEarnedTrophiesForSet(trophySet, psnAuthTokens, accountId);
-        console.info(`PSN API: Fetched ${currentTrophies.length} trophies and ${currentEarnedTrophies.length} earned trophies for ${trophySet.name} (${trophySet.id})`);
+    const perSetResults: PerSetResult[] = await mapWithConcurrency(
+        psnTitleList,
+        safeConcurrency,
+        async (title) => {
+            const [trophies, earnedTrophies] = await Promise.all([
+                fetchPsnTrophiesForTitle(title, psnAuthTokens),
+                fetchPsnEarnedTrophiesForTitle(title, psnAuthTokens, accountId),
+            ]);
 
-        trophies.push(...currentTrophies);
-        earnedTrophies.push(...currentEarnedTrophies);
-    }
+            return {trophies, earnedTrophies};
+        }
+    );
 
-    return {trophies, earnedTrophies}
+    const trophies = perSetResults.flatMap(r => r.trophies);
+    const earnedTrophies = perSetResults.flatMap(r => r.earnedTrophies);
+
+    return {trophies, earnedTrophies};
 }

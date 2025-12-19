@@ -4,43 +4,36 @@ import {PsnTitle} from "../../../psn/models/psnTitle.js";
 import {InsertQueryResult} from "../../models/insertQueryResult.js";
 
 
-/**
- * Inserts a list of PlayStation titles into the database. Skips any titles that conflict based on their ID.
- *
- * @param {PoolClient} client - PostgreSQL client connection to be used for the operation.
- * @param {PsnTitle[]} titles - Array of PlayStation titles to be inserted into the database.
- * @return {Promise<InsertQueryResult>} - An object containing the count of rows inserted and rows ignored due to conflicts.
- */
 export async function insertPsnTitles(
     client: PoolClient,
-    titles: PsnTitle[]
+    psnTitleList: PsnTitle[]
 ): Promise<InsertQueryResult> {
-    if (titles.length === 0) {
+    if (psnTitleList.length === 0) {
         console.warn("No data to update in psn.title table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 
     const values: string[] = [];
-    const placeholders: string = titles.map((
-        t,
+    const placeholders: string = psnTitleList.map((
+        ts,
         idx
     ) => {
-        const currentValues = [t.id, t.name, t.category, t.imageUrl];
+        const currentValues = [ts.id, ts.name, ts.platform, ts.version, ts.iconUrl];
         values.push(...currentValues);
         return buildPostgresInsertPlaceholders(currentValues, idx);
     }).join(',');
 
     const insert = await client.query(`
-        INSERT INTO psn.title (id, name, category, image_url)
+        INSERT INTO psn.title (id, name, platform, version, icon_url)
         VALUES
             ${placeholders} ON CONFLICT (id)
         DO NOTHING
     `, values);
 
     const nbInserted = insert.rowCount ?? 0;
-    const nbIgnored = titles.length - nbInserted;
+    const nbIgnored = psnTitleList.length - nbInserted;
     return {
         rowsInserted: nbInserted,
-        rowsIgnored: nbIgnored,
-    }
+        rowsIgnored: nbIgnored
+    };
 }

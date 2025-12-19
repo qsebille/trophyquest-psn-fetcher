@@ -1,6 +1,6 @@
 export interface PsnTrophy {
     id: string;
-    trophySetId: string;
+    titleId: string;
     rank: number;
     title: string;
     detail: string;

@@ -18,13 +18,13 @@ export async function insertAppGame(
         game,
         idx
     ) => {
-        const currentValues = [game.id, game.title, game.image_url];
+        const currentValues = [game.id, game.title, game.platform, game.image_url];
         values.push(...currentValues);
         return buildPostgresInsertPlaceholders(currentValues, idx);
     }).join(',');
 
     const insert = await client.query(`
-        INSERT INTO app.game (id, title, image_url)
+        INSERT INTO app.game (id, title, platform, image_url)
         VALUES ${placeholders} ON CONFLICT (id) DO NOTHING
     `, values);
 

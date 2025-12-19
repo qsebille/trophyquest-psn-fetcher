@@ -1,7 +1,8 @@
 export interface PsnTitle {
     id: string;
     name: string;
-    imageUrl: string;
-    category: string;
-    lastPlayedDateTime: string;
+    iconUrl: string;
+    platform: string;
+    version: string;
+    lastUpdatedDateTime: string;
 }

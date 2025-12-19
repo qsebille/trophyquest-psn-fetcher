@@ -31,12 +31,12 @@ export async function updateTrophyMissingAwsImages(
 
     const values: string[] = [];
     const placeholders: string = images
-        .filter(collection => collection.aws_icon_url !== null)
+        .filter(trophy => trophy.aws_icon_url !== null)
         .map((
-            collection,
+            trophy,
             idx
         ) => {
-            const currentValues = [collection.id, collection.aws_icon_url ?? ''];
+            const currentValues = [trophy.id, trophy.aws_icon_url ?? ''];
             values.push(...currentValues);
             return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');

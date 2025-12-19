@@ -7,10 +7,10 @@ export interface AppPlayer {
     avatar_url: string
 }
 
-export function buildAppPlayer(psnUserList: PsnUser[]): AppPlayer[] {
+export function buildAppPlayers(psnUserList: PsnUser[]): AppPlayer[] {
     return psnUserList.map(u => {
         return {
-            id: computeUserUuid(u),
+            id: computeUserUuid(u.id),
             pseudo: u.profileName,
             avatar_url: u.avatarUrl ?? ""
         };
