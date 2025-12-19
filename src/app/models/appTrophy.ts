@@ -3,28 +3,28 @@ import {computeGameUuid, computeTrophyUuid} from "../utils/uuid.js";
 
 export interface AppTrophy {
     id: string;
-    game_id: string;
-    game_group_id: string;
+    gameId: string;
+    gameGroupId: string;
     rank: number;
     title: string;
     description: string;
-    trophy_type: string;
-    is_hidden: boolean;
-    icon_url: string;
+    trophyType: string;
+    isHidden: boolean;
+    iconUrl: string;
 }
 
 export function buildAppTrophies(psnTrophyList: PsnTrophy[]): AppTrophy[] {
     return psnTrophyList.map(t => {
         return {
             id: computeTrophyUuid(t.id, t.rank),
-            game_id: computeGameUuid(t.titleId),
-            game_group_id: t.groupId,
+            gameId: computeGameUuid(t.titleId),
+            gameGroupId: t.groupId,
             rank: t.rank,
             title: t.title,
             description: t.detail,
-            trophy_type: t.trophyType,
-            is_hidden: t.isHidden,
-            icon_url: t.iconUrl,
+            trophyType: t.trophyType,
+            isHidden: t.isHidden,
+            iconUrl: t.iconUrl,
         }
     });
 }

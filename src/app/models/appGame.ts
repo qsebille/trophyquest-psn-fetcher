@@ -5,7 +5,7 @@ export interface AppGame {
     id: string;
     title: string;
     platform: string;
-    image_url: string;
+    imageUrl: string;
 }
 
 export function buildAppGames(psnTitleList: PsnTitle[]): AppGame[] {
@@ -14,7 +14,7 @@ export function buildAppGames(psnTitleList: PsnTitle[]): AppGame[] {
             id: computeGameUuid(t.id),
             title: t.name,
             platform: t.platform,
-            image_url: t.iconUrl
+            imageUrl: t.iconUrl
         };
     });
 }

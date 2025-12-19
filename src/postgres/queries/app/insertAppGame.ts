@@ -18,7 +18,7 @@ export async function insertAppGame(
         game,
         idx
     ) => {
-        const currentValues = [game.id, game.title, game.platform, game.image_url];
+        const currentValues = [game.id, game.title, game.platform, game.imageUrl];
         values.push(...currentValues);
         return buildPostgresInsertPlaceholders(currentValues, idx);
     }).join(',');

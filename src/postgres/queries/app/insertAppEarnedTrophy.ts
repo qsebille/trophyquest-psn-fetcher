@@ -24,7 +24,7 @@ export async function insertAppEarnedTrophy(
             earned,
             idx
         ) => {
-            const currentValues = [earned.player_id, earned.trophy_id, earned.earned_at];
+            const currentValues = [earned.playerId, earned.trophyId, earned.earnedAt];
             values.push(...currentValues);
             return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');

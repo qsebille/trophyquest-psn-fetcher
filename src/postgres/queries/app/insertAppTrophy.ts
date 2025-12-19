@@ -26,14 +26,14 @@ export async function insertAppTrophy(
         ) => {
             const currentValues = [
                 trophy.id,
-                trophy.game_id,
-                trophy.game_group_id,
+                trophy.gameId,
+                trophy.gameGroupId,
                 trophy.rank.toString(),
                 trophy.title,
                 trophy.description,
-                trophy.trophy_type,
-                trophy.is_hidden.toString(),
-                trophy.icon_url,
+                trophy.trophyType,
+                trophy.isHidden.toString(),
+                trophy.iconUrl,
             ];
             values.push(...currentValues);
             return buildPostgresInsertPlaceholders(currentValues, idx);

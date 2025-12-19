@@ -18,7 +18,7 @@ export async function upsertAppPlayers(
         player,
         idx
     ) => {
-        const currentValues = [player.id, player.pseudo, player.avatar_url];
+        const currentValues = [player.id, player.pseudo, player.avatarUrl];
         values.push(...currentValues);
         return buildPostgresInsertPlaceholders(currentValues, idx);
     }).join(',');
