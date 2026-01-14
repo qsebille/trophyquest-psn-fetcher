@@ -6,7 +6,6 @@ import {fetchPsnUserData} from "./psn/fetchPsnUserData.js";
 import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
 import {computeAppData} from "./app/computeAppData.js";
 import {getMandatoryParam} from "./config/getMandatoryParam.js";
-import {insertPsnData} from "./postgres/insertPsnData.js";
 import {insertAppData} from "./postgres/insertAppData.js";
 
 /**
@@ -29,7 +28,6 @@ async function runFetcher(): Promise<void> {
         const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(npsso);
         const psnData: PsnDataWrapper = await fetchPsnUserData(psnAuthTokens, profileName, concurrency);
         const appData: AppDataWrapper = computeAppData(psnData);
-        await insertPsnData(pool, psnData);
         await insertAppData(pool, appData);
         console.info("PSN Fetcher : Success");
     } finally {

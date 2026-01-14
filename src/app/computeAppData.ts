@@ -1,8 +1,8 @@
 import {PsnDataWrapper} from "../psn/models/wrappers/psnDataWrapper.js";
 import {AppDataWrapper} from "./models/wrappers/appDataWrapper.js";
 import {AppPlayer, buildAppPlayers} from "./models/appPlayer.js";
-import {AppGame, buildAppGames} from "./models/appGame.js";
-import {AppPlayedGame, buildAppPlayedGames} from "./models/appPlayedGame.js";
+import {AppTrophySet, buildAppGames} from "./models/appTrophySet.js";
+import {AppPlayedTrophySet, buildAppPlayedTrophySets} from "./models/appPlayedTrophySet.js";
 import {AppTrophy, buildAppTrophies} from "./models/appTrophy.js";
 import {AppEarnedTrophy, buildAppEarnedTrophies} from "./models/appEarnedTrophy.js";
 
@@ -10,8 +10,8 @@ import {AppEarnedTrophy, buildAppEarnedTrophies} from "./models/appEarnedTrophy.
 export function computeAppData(wrapper: PsnDataWrapper): AppDataWrapper {
     console.info(`Computing app data...`);
     const appPlayers: AppPlayer[] = buildAppPlayers(wrapper.users);
-    const appGames: AppGame[] = buildAppGames(wrapper.titles);
-    const appPlayedGames: AppPlayedGame[] = buildAppPlayedGames(wrapper.playedTitles);
+    const appGames: AppTrophySet[] = buildAppGames(wrapper.titles);
+    const appPlayedGames: AppPlayedTrophySet[] = buildAppPlayedTrophySets(wrapper.playedTitles);
     const appTrophies: AppTrophy[] = buildAppTrophies(wrapper.trophies);
     const appEarnedTrophies: AppEarnedTrophy[] = buildAppEarnedTrophies(wrapper.earnedTrophies);
 

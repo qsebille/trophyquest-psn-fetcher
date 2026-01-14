@@ -9,7 +9,7 @@ export function computeUserUuid(accountId: string) {
     return uuidv5(accountId, NS_PLAYERS);
 }
 
-export function computeGameUuid(npCommunicationId: string) {
+export function computeTrophySetUuid(npCommunicationId: string) {
     return uuidv5(npCommunicationId, NS_GAMES);
 }
 

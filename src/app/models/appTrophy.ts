@@ -1,9 +1,9 @@
 import {PsnTrophy} from "../../psn/models/psnTrophy.js";
-import {computeGameUuid, computeTrophyUuid} from "../utils/uuid.js";
+import {computeTrophySetUuid, computeTrophyUuid} from "../utils/uuid.js";
 
 export interface AppTrophy {
     id: string;
-    gameId: string;
+    trophySetId: string;
     gameGroupId: string;
     rank: number;
     title: string;
@@ -17,7 +17,7 @@ export function buildAppTrophies(psnTrophyList: PsnTrophy[]): AppTrophy[] {
     return psnTrophyList.map(t => {
         return {
             id: computeTrophyUuid(t.id, t.rank),
-            gameId: computeGameUuid(t.titleId),
+            trophySetId: computeTrophySetUuid(t.titleId),
             gameGroupId: t.groupId,
             rank: t.rank,
             title: t.title,

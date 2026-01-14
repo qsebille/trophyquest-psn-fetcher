@@ -1,11 +1,11 @@
 import {mapWithConcurrency} from "./utils/mapWithConcurrency.js";
 import {uploadImageFromUrl} from "./utils/uploadImageFromUrl.js";
-import {GameImageData} from "../postgres/queries/images/gameMissingImages.js";
+import {TrophySetImageData} from "../postgres/queries/images/gameMissingImages.js";
 
 export async function uploadGameImages(
-    missingGameImages: GameImageData[],
+    missingGameImages: TrophySetImageData[],
     concurrency: number
-): Promise<GameImageData[]> {
+): Promise<TrophySetImageData[]> {
     const staging = await mapWithConcurrency(missingGameImages, concurrency, async (data) => {
             if (!data.image_url) {
                 return data;

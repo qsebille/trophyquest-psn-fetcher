@@ -26,7 +26,7 @@ export async function insertAppTrophy(
         ) => {
             const currentValues = [
                 trophy.id,
-                trophy.gameId,
+                trophy.trophySetId,
                 trophy.gameGroupId,
                 trophy.rank.toString(),
                 trophy.title,
@@ -40,7 +40,7 @@ export async function insertAppTrophy(
         }).join(',');
 
         const insert = await client.query(`
-            INSERT INTO app.trophy (id, game_id, game_group_id, rank, title, description, trophy_type,
+            INSERT INTO app.trophy (id, trophy_set_id, game_group_id, rank, title, description, trophy_type,
                                     is_hidden, icon_url)
             VALUES ${placeholders} ON CONFLICT (id) DO NOTHING
         `, values);

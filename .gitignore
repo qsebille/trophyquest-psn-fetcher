@@ -3,4 +3,5 @@ node_modules
 
 .env
 /dist
+/out
 psn-fetcher.zip

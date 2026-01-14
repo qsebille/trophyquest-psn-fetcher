@@ -6,19 +6,19 @@ import {AppEarnedTrophy} from "../../../app/models/appEarnedTrophy.js";
 
 export async function insertAppEarnedTrophy(
     client: PoolClient,
-    earnedTophies: AppEarnedTrophy[],
+    earnedTrophies: AppEarnedTrophy[],
 ): Promise<InsertQueryResult> {
-    if (earnedTophies.length === 0) {
+    if (earnedTrophies.length === 0) {
         console.warn("No data to insert into app.earned_trophy table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 
-    const batchSize: number = earnedTophies.length > 1000 ? 1000 : earnedTophies.length;
+    const batchSize: number = earnedTrophies.length > 1000 ? 1000 : earnedTrophies.length;
     let rowsInserted: number = 0;
     let rowsIgnored: number = 0;
 
-    for (let i = 0; i < earnedTophies.length; i += batchSize) {
-        const batch = earnedTophies.slice(i, i + batchSize);
+    for (let i = 0; i < earnedTrophies.length; i += batchSize) {
+        const batch = earnedTrophies.slice(i, i + batchSize);
         const values: string[] = [];
         const placeholders: string = batch.map((
             earned,

@@ -4,7 +4,7 @@ import {InsertQueryResult} from "../../models/insertQueryResult.js";
 import {AppPlayer} from "../../../app/models/appPlayer.js";
 
 
-export async function upsertAppPlayers(
+export async function insertAppPlayers(
     client: PoolClient,
     players: AppPlayer[],
 ): Promise<InsertQueryResult> {
@@ -26,9 +26,7 @@ export async function upsertAppPlayers(
     const insert = await client.query(`
         INSERT INTO app.player (id, pseudo, avatar_url)
         VALUES ${placeholders} ON CONFLICT (id)
-        DO
-        UPDATE
-            SET avatar_url=EXCLUDED.avatar_url
+        DO NOTHING
     `, values);
 
     return {

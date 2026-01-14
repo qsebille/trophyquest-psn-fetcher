@@ -1,10 +1,9 @@
 import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
 import {getPsnAuthTokens, PsnAuthTokens} from "./auth/psnAuthTokens.js";
-import {getProfilesToRefresh} from "./postgres/queries/psn/getProfilesToRefresh.js";
+import {getProfilesToRefresh} from "./postgres/queries/app/getProfilesToRefresh.js";
 import {PsnDataWrapper} from "./psn/models/wrappers/psnDataWrapper.js";
 import {refreshPsnData} from "./psn/refreshPsnData.js";
-import {insertPsnData} from "./postgres/insertPsnData.js";
 import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
 import {computeAppData} from "./app/computeAppData.js";
 import {insertAppData} from "./postgres/insertAppData.js";
@@ -31,7 +30,6 @@ async function runRefresher(): Promise<void> {
         const psnUsersPostgres: ProfileToRefresh[] = await getProfilesToRefresh(pool);
         const psnData: PsnDataWrapper = await refreshPsnData(psnUsersPostgres, psnAuthTokens);
         const appData: AppDataWrapper = computeAppData(psnData);
-        await insertPsnData(pool, psnData);
         await insertAppData(pool, appData);
         console.info("PSN Refresher : Success");
     } finally {

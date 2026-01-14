@@ -1,6 +1,6 @@
 import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
-import {GameImageData, getGameMissingAwsImages} from "./postgres/queries/images/gameMissingImages.js";
+import {getTrophySetMissingAwsImages, TrophySetImageData} from "./postgres/queries/images/gameMissingImages.js";
 import {uploadGameImages} from "./aws/uploadGameImages.js";
 import {updateImageData} from "./postgres/updateImageData.js";
 import {getTrophyMissingAwsImages, TrophyImageData} from "./postgres/queries/images/trophyMissingImages.js";
@@ -23,8 +23,8 @@ async function runImageUploader(): Promise<void> {
         const playerUploadedImages: PlayerImageData[] = await uploadPlayerImages(playerMissingImages, concurrency);
         console.info(`Uploaded ${playerUploadedImages.length} player images`);
 
-        const gameMissingImages: GameImageData[] = await getGameMissingAwsImages(pool, limitPerEntity);
-        const gameUploadedImages: GameImageData[] = await uploadGameImages(gameMissingImages, concurrency);
+        const gameMissingImages: TrophySetImageData[] = await getTrophySetMissingAwsImages(pool, limitPerEntity);
+        const gameUploadedImages: TrophySetImageData[] = await uploadGameImages(gameMissingImages, concurrency);
         console.info(`Uploaded ${gameUploadedImages.length} game images`);
 
         const trophyMissingImages: TrophyImageData[] = await getTrophyMissingAwsImages(pool, limitPerEntity);
