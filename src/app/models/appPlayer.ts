@@ -1,5 +1,5 @@
 import {PsnUser} from "../../psn/models/psnUser.js";
-import {computeUserUuid} from "../utils/uuid.js";
+import {computeUserUuid} from "../../uuid/uuid.js";
 
 export interface AppPlayer {
     id: string,

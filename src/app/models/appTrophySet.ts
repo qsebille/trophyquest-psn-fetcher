@@ -1,5 +1,5 @@
 import {PsnTitle} from "../../psn/models/psnTitle.js";
-import {computeTrophySetUuid} from "../utils/uuid.js";
+import {computeTrophySetUuid} from "../../uuid/uuid.js";
 
 export interface AppTrophySet {
     id: string;

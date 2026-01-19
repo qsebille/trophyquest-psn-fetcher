@@ -1,3 +1,5 @@
+import {AuthorizationPayload} from "psn-api";
+
 export interface PsnAuthTokens {
     accessToken: string;
     refreshToken: string;
@@ -11,6 +13,12 @@ export interface PsnAuthTokens {
  * @return {Promise<PsnAuthTokens>} A promise that resolves to the PSN authentication tokens.
  */
 export async function getPsnAuthTokens(npsso: string): Promise<PsnAuthTokens> {
+    const {exchangeNpssoForAccessCode, exchangeAccessCodeForAuthTokens} = await import("psn-api");
+    const accessCode = await exchangeNpssoForAccessCode(npsso);
+    return await exchangeAccessCodeForAuthTokens(accessCode);
+}
+
+export async function getAuthorizationPayload(npsso: string): Promise<AuthorizationPayload> {
     const {exchangeNpssoForAccessCode, exchangeAccessCodeForAuthTokens} = await import("psn-api");
     const accessCode = await exchangeNpssoForAccessCode(npsso);
     return await exchangeAccessCodeForAuthTokens(accessCode);

@@ -1,5 +1,5 @@
 import {PsnEarnedTrophy} from "../../psn/models/psnEarnedTrophy.js";
-import {computeTrophyUuid, computeUserUuid} from "../utils/uuid.js";
+import {computeTrophyUuid, computeUserUuid} from "../../uuid/uuid.js";
 
 export interface AppEarnedTrophy {
     playerId: string;

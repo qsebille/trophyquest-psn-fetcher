@@ -1,19 +1,17 @@
 import {buildPostgresPool} from "./postgres/utils/buildPostgresPool.js";
 import {Pool} from "pg";
-import {getPsnAuthTokens, PsnAuthTokens} from "./auth/psnAuthTokens.js";
-import {PsnDataWrapper} from "./psn/models/wrappers/psnDataWrapper.js";
-import {fetchPsnUserData} from "./psn/fetchPsnUserData.js";
-import {AppDataWrapper} from "./app/models/wrappers/appDataWrapper.js";
-import {computeAppData} from "./app/computeAppData.js";
+import {getAuthorizationPayload} from "./auth/psnAuthTokens.js";
 import {getMandatoryParam} from "./config/getMandatoryParam.js";
-import {insertAppData} from "./postgres/insertAppData.js";
+import {AuthorizationPayload} from "psn-api";
+import {getUserProfile} from "./psn/helpers/getUserProfile.js";
+import {Player} from "./models/Player.js";
+import {fetchUserGamesAndEditions} from "./psn/helpers/fetchUserGamesAndEditions.js";
+import {fetchEditionTrophySuiteLinks} from "./psn/helpers/fetchEditionTrophySuiteLinks.js";
+import {fetchTrophySuites} from "./psn/helpers/fetchTrophySuites.js";
+import {fetchTrophies} from "./psn/helpers/fetchTrophies.js";
+import {insertIntoTrophyQuestDatabase} from "./postgres/insertIntoTrophyQuestDatabase.js";
 
-/**
- * Main method that coordinates the fetching, processing, and storing of PlayStation Network (PSN) user data, including titles, trophy sets, trophies, and earned trophies.
- * It authenticates the user, retrieves data from the PSN API, and inserts the processed data into a PostgreSQL database.
- *
- * @return {Promise<void>} A promise that resolves when the entire process is completed successfully, or rejects if any errors occur during execution.
- */
+
 async function runFetcher(): Promise<void> {
     const startTime = Date.now();
     console.info("Start PSN Fetcher function");
@@ -25,10 +23,29 @@ async function runFetcher(): Promise<void> {
     console.info(`Fetching PSN data for profile ${profileName}`);
 
     try {
-        const psnAuthTokens: PsnAuthTokens = await getPsnAuthTokens(npsso);
-        const psnData: PsnDataWrapper = await fetchPsnUserData(psnAuthTokens, profileName, concurrency);
-        const appData: AppDataWrapper = computeAppData(psnData);
-        await insertAppData(pool, appData);
+        // Auth + user info
+        const auth: AuthorizationPayload = await getAuthorizationPayload(npsso);
+        const player: Player = await getUserProfile(auth, profileName);
+
+        // Fetch data from PSN API
+        const playedGamesAndEditions = await fetchUserGamesAndEditions(auth, player);
+        const editionTrophySuiteLinks = await fetchEditionTrophySuiteLinks(auth, player, playedGamesAndEditions.editions)
+        const playedTrophySuites = await fetchTrophySuites(auth, player);
+        const userTrophyData = await fetchTrophies(auth, player, playedTrophySuites, concurrency);
+
+        // Insert data into database
+        await insertIntoTrophyQuestDatabase(
+            pool,
+            [player],
+            playedGamesAndEditions.games,
+            playedGamesAndEditions.editions,
+            playedTrophySuites,
+            editionTrophySuiteLinks,
+            userTrophyData.groups,
+            userTrophyData.trophies,
+            userTrophyData.earnedTrophies
+        )
+
         console.info("PSN Fetcher : Success");
     } finally {
         const durationSeconds = (Date.now() - startTime) / 1000;
