@@ -28,7 +28,7 @@ export async function insertIntoPsnTrophySuiteTable(client: PoolClient, trophySu
             return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');
         const insert = await client.query(`
-            insert into app.psn_trophy_suite (id, name, version, psn_icon_url, platforms)
+            insert into app.psn_trophy_suite (id, name, version, psn_image_url, platforms)
             values
             ${placeholders} on conflict (id)
             do nothing
