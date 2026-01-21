@@ -34,5 +34,5 @@ export async function fetchUserPlayedTitles(
         offset = response.nextOffset;
     }
 
-    return result.filter(title => new Date(title.lastPlayedDateTime) >= limitDate);
+    return result.filter(title => new Date(title.lastPlayedDateTime) > limitDate);
 }

@@ -46,13 +46,13 @@ async function runRefresher(): Promise<void> {
 
         for (let profile of profiles) {
             const player: Player = await getUserProfile(auth, profile.pseudo);
-            console.info(`Refreshing PSN data for profile ${profile.pseudo}`);
             const accountId: string = player.id;
+            console.info(`Refreshing PSN data for profile ${profile.pseudo}`);
 
             // Fetch data from PSN API (from last earned trophy timestamp)
-            const playedGamesAndEditions = await fetchUserGamesAndEditions(auth, accountId, profile.lastEarnedTrophyTimestamp);
+            const playedGamesAndEditions = await fetchUserGamesAndEditions(auth, accountId, profile.lastPlayedGame);
             const editionTrophySuiteLinks = await fetchEditionTrophySuiteLinks(auth, accountId, playedGamesAndEditions.editions)
-            const playedTrophySuites = await fetchTrophySuites(auth, accountId);
+            const playedTrophySuites = await fetchTrophySuites(auth, accountId, profile.lastPlayedTrophySuite);
             const userTrophyData = await fetchTrophies(auth, accountId, playedTrophySuites, concurrency);
 
             playerList.push(player);

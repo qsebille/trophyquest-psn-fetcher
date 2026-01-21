@@ -6,6 +6,7 @@ const PSN_TITLE_BATCH_SIZE: number = 200
 export async function fetchTrophySuites(
     auth: AuthorizationPayload,
     accountId: string,
+    limitDate?: Date,
 ): Promise<PlayedTrophySuite[]> {
     const {getUserTitles} = await import("psn-api");
 
@@ -17,6 +18,10 @@ export async function fetchTrophySuites(
         const options = {limit: PSN_TITLE_BATCH_SIZE, offset};
         const userTitlesResponse: UserTitlesResponse = await getUserTitles(auth, accountId, options);
         const batchTrophySuites = userTitlesResponse.trophyTitles
+            .filter(trophyTitle => {
+                if (!limitDate) return true;
+                return new Date(trophyTitle.lastUpdatedDateTime) > limitDate;
+            })
             .map(trophyTitle => {
                 return {
                     trophySuite: {

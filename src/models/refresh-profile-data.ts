@@ -1,4 +1,5 @@
 export interface RefreshProfileData {
     pseudo: string,
-    lastEarnedTrophyTimestamp: Date,
+    lastPlayedGame: Date,
+    lastPlayedTrophySuite: Date,
 }
