@@ -1,8 +1,9 @@
-name: Deploy psn-refresher Lambda
+name: Deploy psn-refresher to AWS
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:

@@ -1,8 +1,9 @@
-name: Deploy image-uploader Lambda
+name: Deploy psn-fetcher to AWS
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -45,27 +46,27 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Update code (image-uploader)
+      - name: Update code (psn-fetcher)
         run: |
           aws lambda update-function-code \
-            --function-name trophyquest-image-uploader \
+            --function-name trophyquest-psn-fetcher \
             --zip-file fileb://lambda.zip
 
-      - name: Wait for update to finish (image-uploader)
+      - name: Wait for update to finish (psn-fetcher)
         run: |
           aws lambda wait function-updated \
-            --function-name trophyquest-image-uploader
+            --function-name trophyquest-psn-fetcher
 
-      - name: Publish version & update alias (image-uploader)
+      - name: Publish version & update alias (psn-fetcher)
         run: |
           TQ_VERSION=$(jq -r '.version' package.json)
           
           LAMBDA_VERSION=$(aws lambda publish-version \
-            --function-name trophyquest-image-uploader \
-            --description "TrophyQuest Image Uploader v$TQ_VERSION" \
+            --function-name trophyquest-psn-fetcher \
+            --description "TrophyQuest Fetcher v$TQ_VERSION" \
             --query 'Version' --output text)
           
           aws lambda update-alias \
-            --function-name trophyquest-image-uploader \
+            --function-name trophyquest-psn-fetcher \
             --name prod \
             --function-version $LAMBDA_VERSION

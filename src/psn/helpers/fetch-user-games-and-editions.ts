@@ -32,10 +32,14 @@ export async function fetchUserGamesAndEditions(
                     lastPlayedAt,
                 });
             } else {
+                // @ts-ignore
+                const defaultLanguage = playedTitle.concept.localizedName.defaultLanguage;
+                // @ts-ignore
+                const gameName = playedTitle.concept.localizedName.metadata[defaultLanguage];
                 gameMap.set(gameId, {
                     game: {
                         id: gameId,
-                        name: playedTitle.concept.name,
+                        name: gameName,
                         images: playedTitle.concept.media.images,
                         psnTitleIds: playedTitle.concept.titleIds
                     },
