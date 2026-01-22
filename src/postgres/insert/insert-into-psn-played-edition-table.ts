@@ -12,8 +12,19 @@ export async function insertIntoPsnPlayedEditionTable(client: PoolClient, played
     const batchSize: number = playedEditions.length > 1000 ? 1000 : playedEditions.length;
     let rowsInserted: number = 0;
 
-    for (let i = 0; i < playedEditions.length; i += batchSize) {
-        const batch = playedEditions.slice(i, i + batchSize);
+    // Deduplicate played editions by player and edition ID combination
+    const distinctPlayedEditionById = new Map<string, PlayedEdition>();
+    for (const playedEdition of playedEditions) {
+        const id = `${playedEdition.playerId}-${playedEdition.edition.id}`;
+        if (distinctPlayedEditionById.has(id)) {
+            continue;
+        }
+        distinctPlayedEditionById.set(id, playedEdition);
+    }
+    const distinctPlayedEditions = [...distinctPlayedEditionById.values()];
+
+    for (let i = 0; i < distinctPlayedEditions.length; i += batchSize) {
+        const batch = distinctPlayedEditions.slice(i, i + batchSize);
         const values: string[] = [];
         const placeholders: string = batch.map((playedEdition, idx) => {
             const currentValues = [
