@@ -20,7 +20,7 @@ export async function insertIntoPsnPlayerTable(client: PoolClient, players: Play
         INSERT INTO app.psn_player (id, pseudo, psn_avatar_url)
         VALUES
         ${placeholders} ON CONFLICT (id)
-        DO NOTHING
+        DO UPDATE SET psn_avatar_url=EXCLUDED.psn_avatar_url
     `, values);
 
     const rowsInserted = insert.rowCount ?? 0;
