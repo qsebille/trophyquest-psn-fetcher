@@ -1,6 +1,6 @@
 {
   "name": "trophyquest-nodejs-lambdas",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -18,7 +18,7 @@
     "psn-api": "^2.15.0",
     "uuid": "^13.0.0"
   },
-  "description": "Micro‑service minimal pour **récupérer jeux & trophées PSN** avec [`psn-api`](https://www.npmjs.com/package/psn-api), et **stocker en PostgreSQL** (local). Pensé pour alimenter ensuite le backend Spring/Angular ou un ETL vers Snowflake.",
+  "description": "Functions to retrieve PSN data with [`psn-api`](https://www.npmjs.com/package/psn-api)",
   "keywords": [],
   "author": "",
   "license": "ISC",
