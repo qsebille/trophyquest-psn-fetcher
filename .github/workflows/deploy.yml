@@ -1,0 +1,118 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "psn_fetcher/**"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: psn_fetcher
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: psn_fetcher/package-lock.json
+
+      - name: Get version
+        id: get-version
+        uses: ./.github/actions/get-version
+        with:
+          service_name: psn-fetcher
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Prune dev deps
+        run: npm prune --production
+
+      - name: Package Fetcher Lambda
+        shell: bash
+        run: |
+          rm -rf packaged-lambda-fetcher psn-fetcher.zip
+          mkdir -p packaged-lambda-fetcher
+          cp dist/fetcher.mjs packaged-lambda-fetcher/
+          cd packaged-lambda-fetcher
+          zip -r "../psn-fetcher.zip" .
+
+      - name: Package Refresher Lambda
+        shell: bash
+        run: |
+          rm -rf packaged-lambda-refresher psn-refresher.zip
+          mkdir -p packaged-lambda-refresher
+          cp dist/refresher.mjs packaged-lambda-refresher/
+          cd packaged-lambda-refresher
+          zip -r "../psn-refresher.zip" .
+
+      - name: Upload fetcher artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: psn-fetcher-lambda
+          path: psn_fetcher/psn-fetcher.zip
+
+      - name: Upload refresher artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: psn-refresher-lambda
+          path: psn_fetcher/psn-refresher.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
+
+      - name: Download fetcher artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: psn-fetcher-lambda
+
+      - name: Download refresher artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: psn-refresher-lambda
+
+      - name: Deploy Fetcher to AWS
+        uses: ./.github/actions/deploy-lambda
+        with:
+          function_name: trophyquest-psn-fetcher
+          semantic_version: ${{ needs.build.outputs.version }}
+          alias_name: prod
+          zip_path: psn-fetcher.zip
+          aws_region: ${{ secrets.AWS_REGION }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Deploy Refresher to AWS
+        uses: ./.github/actions/deploy-lambda
+        with:
+          function_name: trophyquest-psn-refresher
+          semantic_version: ${{ needs.build.outputs.version }}
+          alias_name: prod
+          zip_path: psn-refresher.zip
+          aws_region: ${{ secrets.AWS_REGION }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
