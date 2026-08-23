@@ -5,17 +5,14 @@ import {RefreshProfileData} from "../../models/refresh-profile-data.js";
 export async function selectProfiles(pool: Pool): Promise<RefreshProfileData[]> {
     const userQueryResult = await pool.query(`
         select p.pseudo,
-               MAX(pts.last_played_at) as last_played_trophy_suite,
-               MAX(pg.last_played_at)  as last_played_game
+               MAX(ps.last_played_at) as last_played_suite
         from app.psn_player p
-                 join app.psn_played_trophy_suite pts on pts.player_id = p.id
-                 join app.psn_played_game pg on pg.player_id = p.id
+                 join app.psn_played_suite ps on ps.player_id = p.id
         group by p.pseudo
     `);
 
     return userQueryResult.rows.map(row => ({
         pseudo: row.pseudo,
-        lastPlayedGame: new Date(row.last_played_game),
-        lastPlayedTrophySuite: new Date(row.last_played_trophy_suite),
+        lastPlayedSuite: new Date(row.last_played_suite),
     }));
 }

@@ -1,13 +1,13 @@
 import {PoolClient} from "pg";
 import {buildPostgresInsertPlaceholders} from "../utils/build-postgres-insert-placeholders.js";
-import {TrophyQuestTrophySuiteGroup} from "../../trophyquest/trophy-suite-group";
+import {TrophyQuestGroup} from "../../trophyquest/group";
 
 export async function insertTrophySuiteGroups(
     client: PoolClient,
-    groups: TrophyQuestTrophySuiteGroup[],
+    groups: TrophyQuestGroup[],
 ) {
     if (groups.length === 0) {
-        console.warn("🟡 No data to insert into app.psn_trophy_suite_group table.");
+        console.warn("🟡 No data to insert into app.psn_group table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 
@@ -21,7 +21,7 @@ export async function insertTrophySuiteGroups(
         const placeholders: string = groups.map((group, idx) => {
             const currentValues = [
                 group.id,
-                group.trophySuiteId,
+                group.suiteId,
                 group.psnId,
                 group.name,
             ]
@@ -29,7 +29,7 @@ export async function insertTrophySuiteGroups(
             return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');
         const insert = await client.query(`
-            INSERT INTO app.psn_trophy_suite_group (id, trophy_suite_id, psn_id, name)
+            INSERT INTO app.psn_group (id, suite_id, psn_id, name)
             VALUES
             ${placeholders} 
             ON CONFLICT (id)

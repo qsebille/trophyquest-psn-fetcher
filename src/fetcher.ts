@@ -5,11 +5,10 @@ import {getMandatoryParam} from "./config/get-mandatory-param.js";
 import {AuthorizationPayload} from "psn-api";
 import {fetchPlayer} from "./psn/player/player-fetcher";
 import {Player} from "./psn/player/player.model";
-import {fetchPlayedGames} from "./psn/game/played-game-fetcher";
-import {fetchPlayedTrophySuites} from "./psn/trophysuite/played-trophy-suite-fetcher";
 import {fetchPlayerTrophies} from "./psn/trophy/player-trophy-fetcher";
 import {buildTrophyquestPlayerData} from "./trophyquest/trophyquest-data";
 import {insertTrophyQuestData} from "./postgres/trophyquest-app-insert";
+import {fetchPlayedSuites} from "./psn/played-suite";
 
 
 async function runFetcher(): Promise<void> {
@@ -18,41 +17,33 @@ async function runFetcher(): Promise<void> {
 
     const npsso: string = getMandatoryParam('NPSSO');
     const profileName: string = getMandatoryParam('PROFILE_NAME');
-    const concurrency: number = Number(getMandatoryParam('CONCURRENCY'));
     const pool: Pool = buildPostgresPool();
     console.info(`Fetching all PSN data for profile ${profileName}`);
 
     try {
-        // TODO: ajouter des calcul de temps et logger à la fin
         // Authenticate and fetch user info
         const auth: AuthorizationPayload = await getAuthorizationPayload(npsso);
         const player: Player = await fetchPlayer(auth, profileName);
         const accountId: string = player.id;
         console.info(`Fetched player data for profile ${profileName} with id ${accountId}`);
 
-        // Fetching games
-        const playedGames = await fetchPlayedGames(auth, accountId);
-        console.info(`Fetched ${playedGames.length} games`)
+        // Fetch played suites
+        const playedSuites = await fetchPlayedSuites(auth, accountId);
+        console.info(`Fetched ${playedSuites.length} suites`)
 
-        // Fetching trophy suites
-        const playedSuites = await fetchPlayedTrophySuites(auth, accountId, playedGames);
-        console.info(`Fetched ${playedSuites.length} trophy suites`)
-
-        // Fetching trophies and earned trophies
+        // Fetching trophies of played suites and earned trophies
         const trophyData = await fetchPlayerTrophies(auth, accountId, playedSuites);
         console.info(`Fetched ${trophyData.trophies.length} trophies`)
         console.info(`Fetched ${trophyData.earnedTrophies.length} earned trophies`)
-        console.info(`Fetched ${trophyData.groups.length} trophy groups`)
+        console.info(`Fetched ${trophyData.groups.length} groups of trophy`)
 
         // Building Trophyquest data
-        const tqData = buildTrophyquestPlayerData(accountId, [player], playedGames, playedSuites, trophyData.trophies, trophyData.earnedTrophies, trophyData.groups);
+        const tqData = buildTrophyquestPlayerData(accountId, [player], playedSuites, trophyData.trophies, trophyData.earnedTrophies, trophyData.groups);
         console.info(`Built TrophyQuest data for profile ${profileName}`);
-        console.info(`Built ${tqData.games.length} games`);
-        console.info(`Built ${tqData.trophySuites.length} suites`);
-        console.info(`Built ${tqData.trophySuiteGroups.length} suite groups`);
+        console.info(`Built ${tqData.suites.length} suites`);
+        console.info(`Built ${tqData.groups.length} groups of trophy`);
         console.info(`Built ${tqData.trophies.length} trophies`);
-        console.info(`Built ${tqData.playedGames.length} played games`);
-        console.info(`Built ${tqData.playedTrophySuites.length} played suites`);
+        console.info(`Built ${tqData.playedSuites.length} played suites`);
         console.info(`Built ${tqData.earnedTrophies.length} earned trophies`);
 
         // Inserting data into database

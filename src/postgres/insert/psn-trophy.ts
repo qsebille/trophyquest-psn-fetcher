@@ -21,8 +21,8 @@ export async function insertTrophies(
         const placeholders: string = batch.map((trophy, idx) => {
             const currentValues = [
                 trophy.id,
-                trophy.trophySuiteId,
-                trophy.trophySuiteGroupId,
+                trophy.suiteId,
+                trophy.groupId,
                 trophy.rank.toString(),
                 trophy.title,
                 trophy.description,
@@ -34,7 +34,7 @@ export async function insertTrophies(
             return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');
         const insert = await client.query(`
-            INSERT INTO app.psn_trophy (id, trophy_suite_id, trophy_suite_group_id, rank, title, description,
+            INSERT INTO app.psn_trophy (id, suite_id, group_id, rank, title, description,
                                         color, is_hidden, psn_icon_url)
             VALUES
             ${placeholders} 

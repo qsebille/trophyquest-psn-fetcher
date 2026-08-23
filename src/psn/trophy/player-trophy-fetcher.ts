@@ -1,15 +1,15 @@
 import {AuthorizationPayload} from "psn-api";
 import {mapWithConcurrency} from "../../utils/map-with-concurrency";
 import {fetchTrophiesForSuite} from "./trophy-fetcher";
-import {PlayedTrophySuite} from "../trophysuite/played-trophy-suite.model";
 import {fetchEarnedTrophiesForSuite} from "./earned-trophy-fetcher";
 import {fetchGroupsForSuite} from "./trophy-suite-group-fetcher";
+import {PlayedSuite} from "../played-suite";
 
 
 export async function fetchPlayerTrophies(
     auth: AuthorizationPayload,
     accountId: string,
-    trophySuites: PlayedTrophySuite[],
+    trophySuites: PlayedSuite[],
 ) {
     const batchResults = await mapWithConcurrency(
         trophySuites,

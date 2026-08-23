@@ -1,9 +1,5 @@
 import {Trophy} from "../psn/trophy/trophy.model";
-import {
-    computeTrophyQuestTrophySuiteGroupUuid,
-    computeTrophyQuestTrophySuiteUuid,
-    computeTrophyQuestTrophyUuid
-} from "../utils/uuid";
+import {computeTrophyQuestGroupUuid, computeTrophyQuestSuiteUuid, computeTrophyQuestTrophyUuid} from "../utils/uuid";
 
 export interface TrophyQuestTrophy {
     id: string
@@ -13,15 +9,15 @@ export interface TrophyQuestTrophy {
     color: string
     isHidden: boolean
     psnIconUrl: string
-    trophySuiteId: string
-    trophySuiteGroupId: string
+    suiteId: string
+    groupId: string
 }
 
 export function buildTrophyQuestTrophies(trophies: Trophy[]) {
     return trophies.map(t => {
         const trophyId = computeTrophyQuestTrophyUuid(t.id)
-        const trophySuiteId = computeTrophyQuestTrophySuiteUuid(t.trophySuiteId)
-        const trophySuiteGroupId = computeTrophyQuestTrophySuiteGroupUuid(t.groupId)
+        const suiteId = computeTrophyQuestSuiteUuid(t.trophySuiteId)
+        const groupId = computeTrophyQuestGroupUuid(t.groupId)
         return {
             id: trophyId,
             rank: t.rank,
@@ -30,8 +26,8 @@ export function buildTrophyQuestTrophies(trophies: Trophy[]) {
             color: t.color,
             isHidden: t.isHidden,
             psnIconUrl: t.iconUrl,
-            trophySuiteId: trophySuiteId,
-            trophySuiteGroupId: trophySuiteGroupId,
+            suiteId: suiteId,
+            groupId: groupId,
         } as TrophyQuestTrophy
     })
 }

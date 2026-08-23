@@ -1,7 +1,7 @@
-import {computeTrophyQuestGameUuid, computeTrophyQuestTrophySuiteUuid} from "../utils/uuid";
-import {PlayedTrophySuite} from "../psn/trophysuite/played-trophy-suite.model";
+import {computeTrophyQuestGameUuid, computeTrophyQuestSuiteUuid} from "../utils/uuid";
+import {PlayedSuite} from "../psn/played-suite";
 
-export interface TrophyQuestTrophySuite {
+export interface TrophyQuestSuite {
     id: string
     gameId: string | null
     name: string
@@ -9,9 +9,9 @@ export interface TrophyQuestTrophySuite {
     platforms: string[]
 }
 
-export function buildTrophyQuestTrophySuites(trophySuites: PlayedTrophySuite[]) {
+export function buildTrophyQuestSuites(trophySuites: PlayedSuite[]) {
     return trophySuites.map(t => {
-        const trophySuiteId = computeTrophyQuestTrophySuiteUuid(t.id)
+        const trophySuiteId = computeTrophyQuestSuiteUuid(t.id)
 
         let gameId: string | null = null;
         if (t.gameId) {
@@ -23,6 +23,6 @@ export function buildTrophyQuestTrophySuites(trophySuites: PlayedTrophySuite[]) 
             name: t.name,
             psnIconUrl: t.iconUrl,
             platforms: t.platforms
-        } as TrophyQuestTrophySuite
+        } as TrophyQuestSuite
     })
 }

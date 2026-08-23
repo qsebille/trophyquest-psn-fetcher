@@ -1,12 +1,12 @@
 import {AuthorizationPayload} from "psn-api";
-import {PlayedTrophySuite} from "../trophysuite/played-trophy-suite.model";
 import {EarnedTrophy} from "./earned-trophy.model";
 import {buildTrophyId} from "./trophy-id-builder";
+import {PlayedSuite} from "../played-suite";
 
 export async function fetchEarnedTrophiesForSuite(
     auth: AuthorizationPayload,
     accountId: string,
-    trophySuite: PlayedTrophySuite,
+    trophySuite: PlayedSuite,
 ): Promise<EarnedTrophy[]> {
     const {getUserTrophiesEarnedForTitle} = await import("psn-api");
 

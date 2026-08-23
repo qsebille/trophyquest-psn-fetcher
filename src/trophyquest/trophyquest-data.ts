@@ -1,49 +1,38 @@
 import {buildTrophyQuestPlayer, TrophyQuestPlayer} from "./player";
-import {buildTrophyQuestGames, TrophyQuestGame} from "./game";
-import {buildTrophyQuestTrophySuiteGroups, TrophyQuestTrophySuiteGroup} from "./trophy-suite-group";
-import {buildTrophyQuestTrophySuites, TrophyQuestTrophySuite} from "./trophy-suite";
+import {buildTrophyQuestGroups, TrophyQuestGroup} from "./group";
+import {buildTrophyQuestSuites, TrophyQuestSuite} from "./trophy-suite";
 import {buildTrophyQuestTrophies, TrophyQuestTrophy} from "./trophy";
-import {buildTrophyQuestGameImages, TrophyQuestGameImage} from "./game-image";
-import {buildTrophyQuestPlayedTrophySuites, TrophyQuestPlayedTrophySuite} from "./played-trophy-suite";
-import {buildTrophyQuestPlayedGames, TrophyQuestPlayedGame} from "./played-game";
+import {buildTrophyQuestPlayedSuites, TrophyQuestPlayedSuite} from "./played-suite";
 import {buildTrophyQuestEarnedTrophies, TrophyQuestEarnedTrophy} from "./earned-trophy";
-import {PlayedGame} from "../psn/game/played-game.model";
-import {PlayedTrophySuite} from "../psn/trophysuite/played-trophy-suite.model";
 import {Trophy} from "../psn/trophy/trophy.model";
 import {EarnedTrophy} from "../psn/trophy/earned-trophy.model";
 import {TrophySuiteGroup} from "../psn/trophy/trophy-suite-group.model";
 import {Player} from "../psn/player/player.model";
+import {PlayedSuite} from "../psn/played-suite";
 
 export interface TrophyQuestData {
     players: TrophyQuestPlayer[]
-    games: TrophyQuestGame[]
-    gameImages: TrophyQuestGameImage[]
-    trophySuites: TrophyQuestTrophySuite[]
-    trophySuiteGroups: TrophyQuestTrophySuiteGroup[]
+    suites: TrophyQuestSuite[]
+    groups: TrophyQuestGroup[]
     trophies: TrophyQuestTrophy[]
-    playedGames: TrophyQuestPlayedGame[]
-    playedTrophySuites: TrophyQuestPlayedTrophySuite[]
+    playedSuites: TrophyQuestPlayedSuite[]
     earnedTrophies: TrophyQuestEarnedTrophy[]
 }
 
 export function buildTrophyquestPlayerData(
     accountId: string,
     players: Player[],
-    playedGames: PlayedGame[],
-    playedTrophySuites: PlayedTrophySuite[],
+    playedSuites: PlayedSuite[],
     trophies: Trophy[],
     earnedTrophies: EarnedTrophy[],
     trophySuiteGroups: TrophySuiteGroup[],
 ) {
     return {
         players: buildTrophyQuestPlayer(players),
-        games: buildTrophyQuestGames(playedGames),
-        gameImages: buildTrophyQuestGameImages(playedGames),
-        trophySuites: buildTrophyQuestTrophySuites(playedTrophySuites),
-        trophySuiteGroups: buildTrophyQuestTrophySuiteGroups(trophySuiteGroups),
+        suites: buildTrophyQuestSuites(playedSuites),
+        groups: buildTrophyQuestGroups(trophySuiteGroups),
         trophies: buildTrophyQuestTrophies(trophies),
-        playedGames: buildTrophyQuestPlayedGames(accountId, playedGames),
-        playedTrophySuites: buildTrophyQuestPlayedTrophySuites(accountId, playedTrophySuites),
+        playedSuites: buildTrophyQuestPlayedSuites(accountId, playedSuites),
         earnedTrophies: buildTrophyQuestEarnedTrophies(accountId, earnedTrophies),
     } as TrophyQuestData
 }

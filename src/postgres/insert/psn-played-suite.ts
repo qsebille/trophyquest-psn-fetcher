@@ -1,36 +1,36 @@
 import {PoolClient} from "pg";
 import {buildPostgresInsertPlaceholders} from "../utils/build-postgres-insert-placeholders.js";
-import {TrophyQuestPlayedTrophySuite} from "../../trophyquest/played-trophy-suite";
+import {TrophyQuestPlayedSuite} from "../../trophyquest/played-suite";
 
-export async function insertPlayedTrophySuites(
+export async function insertPlayedSuites(
     client: PoolClient,
-    playedTrophySuites: TrophyQuestPlayedTrophySuite[]
+    playedSuites: TrophyQuestPlayedSuite[]
 ) {
-    if (playedTrophySuites.length === 0) {
-        console.warn("🟡 No data to insert into app.psn_played_trophy_suite table.");
+    if (playedSuites.length === 0) {
+        console.warn("🟡 No data to insert into app.psn_played_suite table.");
         return {rowsInserted: 0, rowsIgnored: 0};
     }
 
-    const batchSize: number = playedTrophySuites.length > 1000 ? 1000 : playedTrophySuites.length;
+    const batchSize: number = playedSuites.length > 1000 ? 1000 : playedSuites.length;
     let rowsInserted: number = 0;
 
-    for (let i = 0; i < playedTrophySuites.length; i += batchSize) {
-        const batch = playedTrophySuites.slice(i, i + batchSize);
+    for (let i = 0; i < playedSuites.length; i += batchSize) {
+        const batch = playedSuites.slice(i, i + batchSize);
         const values: string[] = [];
         const placeholders: string = batch.map((pts, idx) => {
             const currentValues = [
                 pts.playerId,
-                pts.trophySuiteId,
+                pts.suiteId,
                 pts.lastPlayedAt,
             ]
             values.push(...currentValues);
             return buildPostgresInsertPlaceholders(currentValues, idx);
         }).join(',');
         const insert = await client.query(`
-            INSERT INTO app.psn_played_trophy_suite (player_id, trophy_suite_id, last_played_at)
+            INSERT INTO app.psn_played_suite (player_id, suite_id, last_played_at)
             VALUES
             ${placeholders} 
-            ON CONFLICT (player_id, trophy_suite_id)
+            ON CONFLICT (player_id, suite_id)
             DO UPDATE SET last_played_at=EXCLUDED.last_played_at
         `, values);
 

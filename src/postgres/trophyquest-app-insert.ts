@@ -1,8 +1,8 @@
 import {Pool, PoolClient} from "pg";
 import {insertPlayers} from "./insert/psn-player";
-import {insertTrophySuites} from "./insert/psn-trophy-suite";
-import {insertTrophySuiteGroups} from "./insert/psn-trophy-suite-group";
-import {insertPlayedTrophySuites} from "./insert/psn-played-trophy-suite";
+import {insertSuites} from "./insert/psn-suite";
+import {insertTrophySuiteGroups} from "./insert/psn-group";
+import {insertPlayedSuites} from "./insert/psn-played-suite";
 import {insertTrophies} from "./insert/psn-trophy";
 import {insertEarnedTrophies} from "./insert/psn-earned-trophy";
 import {TrophyQuestData} from "../trophyquest/trophyquest-data";
@@ -15,10 +15,10 @@ export async function insertTrophyQuestData(
     try {
         await client.query('BEGIN')
         const playerInsert = await insertPlayers(client, data.players)
-        const trophySuiteInsert = await insertTrophySuites(client, data.trophySuites)
-        const groupInsert = await insertTrophySuiteGroups(client, data.trophySuiteGroups)
+        const trophySuiteInsert = await insertSuites(client, data.suites)
+        const groupInsert = await insertTrophySuiteGroups(client, data.groups)
         const trophyInsert = await insertTrophies(client, data.trophies)
-        const playedTrophySuiteInsert = await insertPlayedTrophySuites(client, data.playedTrophySuites)
+        const playedTrophySuiteInsert = await insertPlayedSuites(client, data.playedSuites)
         const earnedTrophyInsert = await insertEarnedTrophies(client, data.earnedTrophies)
         await client.query('COMMIT')
 

@@ -1,11 +1,11 @@
 import {AuthorizationPayload} from "psn-api";
 import {TrophySuiteGroup} from "./trophy-suite-group.model";
-import {PlayedTrophySuite} from "../trophysuite/played-trophy-suite.model";
+import {PlayedSuite} from "../played-suite";
 import {buildTrophySuiteGroupUniqueId} from "./trophy-suite-group-id-builder";
 
 export async function fetchGroupsForSuite(
     auth: AuthorizationPayload,
-    trophySuite: PlayedTrophySuite,
+    trophySuite: PlayedSuite,
 ) {
     const {getTitleTrophyGroups} = await import("psn-api");
 
